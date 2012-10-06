@@ -1,7 +1,7 @@
 import java.util.*;
 
 class Counter {
-	static Hashtable[] count(String[] corpus) {
+	public static Hashtable[] count(String[] corpus) {
 		/*
 		 * Given an array of tokens (corpus),
 		 * constructs a degree 2 Markov model out of it

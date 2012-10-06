@@ -1,6 +1,6 @@
 import java.util.*;
 class Smoother {
-	private double hashtableSum(Hashtable table) {
+	private static double hashtableSum(Hashtable table) {
 		/*
 		 * Given a hashtable (table) mapping strings to doubles,
 		 * return the sum of all the values in that hashtable.
@@ -19,7 +19,7 @@ class Smoother {
 
 		return total;
 	}
-	private Hashtable scaleHashtable(Hashtable table, double scalar) {
+	private static Hashtable scaleHashtable(Hashtable table, double scalar) {
 		/*
 		 * Given a hashtable (table) and a scalar (scalar),
 		 * return the hashtable with the same keys as (table),
@@ -41,7 +41,7 @@ class Smoother {
 		
 		return tableToReturn;
 	}
-	private Hashtable invertHashtable(Hashtable table) {
+	private static Hashtable invertHashtable(Hashtable table) {
 		/*
 		 * Given a hashtable (table), return a hashtable
 		 * mapping all the values in the original table
@@ -72,7 +72,7 @@ class Smoother {
 		
 		return inverted;
 	}
-	private Hashtable scaleToOne(Hashtable a) {
+	private static Hashtable scaleToOne(Hashtable a) {
 		/*
 		 * Given a hashtable (a), return a hashtable
 		 * whose values are in the same ratio as (a),
@@ -81,7 +81,7 @@ class Smoother {
 		
 		return scaleHashtable(a,1.0/hashtableSum(a));
 	}
-	public Hashtable heldOutSmoothing(Hashtable training, Hashtable held, int alphabetSize) {
+	public static Hashtable heldOutSmoothing(Hashtable training, Hashtable held, int alphabetSize) {
 		/*
 		 * Perform held out smoothing on a data set.
 		 */
@@ -146,7 +146,7 @@ class Smoother {
 		
 		return finalSmoothedCounts;
 	}
-	public Hashtable heldOutSmoothingScaled(Hashtable training, Hashtable held, int alphabetSize) {
+	public static Hashtable heldOutSmoothingScaled(Hashtable training, Hashtable held, int alphabetSize) {
 		/*
 		 * Perform held out smoothing on a data set,
 		 * and also scale to one.
