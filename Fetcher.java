@@ -6,6 +6,16 @@ import org.w3c.dom.*;
 class Fetcher {
 	private static DocumentBuilderFactory XMLParserFactory = DocumentBuilderFactory.newInstance();
 	
+	private static Node getFirstChildWithName(Node node, String name) {
+		NodeList children = node.getChildNodes();
+		for (int i = 0; i < children.getLength(); i += 1) {
+			if (children.item(i).getNodeName() == name) {
+				return children.item(i);
+			}
+		}
+		return null;
+	}
+	
 	private static Document XMLRequest(String url) {
 		/*
 		 * Given a URL in string form (url),
@@ -44,7 +54,9 @@ class Fetcher {
 			int[] ids = {};
 
 			//Make a request to Wikipedia's API for a list of random pages in XML:
-			Document list = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&action=query&list=random&rnlimit=" + n);
+			Document list = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"+
+									   "action=query&list=random&rnnamespace=0&" +
+									   "rnlimit=" + n);
 			
 			//Get all the pages in a NodeList:
 			NodeList pages = list.getElementsByTagName("page");
@@ -74,7 +86,45 @@ class Fetcher {
 		 */
 		
 		try {
+			String[] blocksOfFifty = new String[50];
 			String[] pageTexts = new String[ids.length];
+			
+			//Separate the page ids into blocks of fifty.
+			for (int i = 0; i < ids.length; i += 1) {
+				if (i%50 == 0) {
+					blocksOfFifty[i/50] = "";
+				}
+				else {
+					blocksOfFifty[i/50] += "|";
+				}
+				
+				blocksOfFifty[i/50] += ids[i];
+			}
+			
+			//Get the content of each page. First, we make a marker
+			for (int i = 0; i < blocksOfFifty.length; i += 1) {
+				//Make the request for fifty pages and parse:
+				Document xml = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"+
+									      "action=query&prop=revisions&rvprop=content&"+
+									      "pageids="+blocksOfFifty[i]);
+
+				//Extract the pages from the response:
+				NodeList pages = xml.getElementsByTagName("page");
+												
+				//Now that we've got our pages, get the content of each one.
+				for (int x = 0; x < pages.getLength(); x += 1) {
+					//Search the pages' child nodes for a node named "revisions"
+					Node revisions = getFirstChildWithName(pages.item(x), "revisions");
+					
+					//Search that child node for a node named "rev"
+					Node rev = getFirstChildWithName(revisions, "rev");
+					
+					//Put the content of that node into pageTexts.
+					pageTexts[i*50 + x] = rev.getChildNodes().item(0).getNodeValue();
+				}
+				
+				return pageTexts;
+			}
 			
 			//For each page, request the current revision, get the text from the
 			//XML, and put it into pageTexts.
