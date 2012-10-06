@@ -1,93 +1,13 @@
 import java.util.*;
-class Smoother {
-	private static double hashtableSum(Hashtable table) {
-		/*
-		 * Given a hashtable (table) mapping strings to doubles,
-		 * return the sum of all the values in that hashtable.
-		 */
-		
-		//Get the hashtable's keys:
-		String[] keys = (String[])table.keySet().toArray();
-		
-		//Initiate our counter:
-		double total = 0.0;
-		
-		for (int i = 0; i < keys.length; i += 1) {
-			//Add each value to the counter:
-			total += (Integer)table.get(keys[i]);
-		}
 
-		return total;
-	}
-	private static Hashtable scaleHashtable(Hashtable table, double scalar) {
-		/*
-		 * Given a hashtable (table) and a scalar (scalar),
-		 * return the hashtable with the same keys as (table),
-		 * each mapping to a value that is (scalar) times the value
-		 * in the original hashtable.
-		 */
-		
-		//Get the hashtable's keys:
-		String[] keys = (String[])table.keySet().toArray();
-		
-		//Initiate our return hashtable:
-		Hashtable tableToReturn = new Hashtable();
-		
-		for (int i = 0; i < keys.length; i += 1) {
-			//For each key, get the value associated with it and put that
-			//value times the scalar into tableToReturn.
-			tableToReturn.put(keys[i], (Integer)table.get(keys[i]) * scalar);
-		}
-		
-		return tableToReturn;
-	}
-	private static Hashtable invertHashtable(Hashtable table) {
-		/*
-		 * Given a hashtable (table), return a hashtable
-		 * mapping all the values in the original table
-		 * to all the keys that had those values in the original
-		 * table.
-		 */
-		
-		//Get the hashtable's keys:
-		String[] keys = (String[])table.keySet().toArray();
-		
-		//Initiate our return hashtable:
-		Hashtable inverted = new Hashtable();
-		
-		for (int i = 0; i < keys.length; i += 1) {
-			if (!inverted.containsKey(table.get(keys[i]))) {
-				//If we've never seen this value before, initiate it with
-				//a new ArrayList containing only the current key.
-				ArrayList list = new ArrayList();
-				list.add(keys[i]);
-				inverted.put(table.get(keys[i]),list);
-			}
-			else {
-				//Otherwise, add the current key to the list of keys with this
-				//value.
-				((ArrayList)inverted.get(table.get(keys[i]))).add(keys[i]);
-			}
-		}
-		
-		return inverted;
-	}
-	private static Hashtable scaleToOne(Hashtable a) {
-		/*
-		 * Given a hashtable (a), return a hashtable
-		 * whose values are in the same ratio as (a),
-		 * but sum to one.
-		 */
-		
-		return scaleHashtable(a,1.0/hashtableSum(a));
-	}
+class Smoother {
 	public static Hashtable heldOutSmoothing(Hashtable training, Hashtable held, int alphabetSize) {
 		/*
 		 * Perform held out smoothing on a data set.
 		 */
 		
 		//Initiate our hashtables:
-		Hashtable invertedTraining = invertHashtable(training);
+		Hashtable invertedTraining = MarkovFunctions.invertHashtable(training);
 		Hashtable finalSmoothedCounts = new Hashtable();
 		Double[] invertedKeys = (Double[])invertedTraining.keySet().toArray();
 		
@@ -146,12 +66,13 @@ class Smoother {
 		
 		return finalSmoothedCounts;
 	}
-	public static Hashtable heldOutSmoothingScaled(Hashtable training, Hashtable held, int alphabetSize) {
+	
+	public static Hashtable heldOutSmoothingScaledLogarithmic(Hashtable training, Hashtable held, int alphabetSize) {
 		/*
 		 * Perform held out smoothing on a data set,
 		 * and also scale to one.
 		 */
 		
-		return scaleToOne(heldOutSmoothing(training, held, alphabetSize));
+		return MarkovFunctions.logarithmicScaleToOne(heldOutSmoothing(training, held, alphabetSize));
 	}
 }
