@@ -7,12 +7,24 @@ class Fetcher {
 	private static DocumentBuilderFactory XMLParserFactory = DocumentBuilderFactory.newInstance();
 	
 	private static Node getFirstChildWithName(Node node, String name) {
+		/*
+		 * Given an xml element (node) and a node name
+		 * (name), return the first child of (node) that has
+		 * the name (name), or null if nonexistent.
+		 */
+		
+		//Get the children of node:
 		NodeList children = node.getChildNodes();
+		
 		for (int i = 0; i < children.getLength(); i += 1) {
 			if (children.item(i).getNodeName() == name) {
+				//For each child, if the child has the desired name,
+				//return it.
 				return children.item(i);
 			}
 		}
+		
+		//If no child was returned, return null.
 		return null;
 	}
 	
@@ -143,10 +155,8 @@ class Fetcher {
 		return null;
 	}
 	
-	public static void main(String args[]) {
-		String[] pageTexts = getPageTexts(getRandomIDs(Integer.valueOf(args[0]).intValue()));
-		for (int i = 0; i < pageTexts.length; i += 1) {
-			System.out.println(pageTexts[i]);
-		}
+	public static String[] getRandomPageTexts(int n) {
+		return getPageTexts(getRandomIDs(n));
 	}
+	
 }
