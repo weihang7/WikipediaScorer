@@ -6,7 +6,7 @@
  * @author weihangfan
  *
  */
-public class Master {
+class Manifester {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		String[] pages = Fetcher.getRandomPageTexts(30);
