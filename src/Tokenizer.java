@@ -1,5 +1,5 @@
-import WikipediaTemplateParser.info.bliki.wiki.filter.PlainTextConverter;
-import WikipediaTemplateParser.info.bliki.wiki.model.WikiModel;
+import info.bliki.wiki.filter.PlainTextConverter;
+import info.bliki.wiki.model.WikiModel;
 import java.util.*;
 
 public class Tokenizer {
