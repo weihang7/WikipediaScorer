@@ -1,11 +1,3 @@
-/**
- * 
- */
-
-/**
- * @author weihangfan
- *
- */
 class Manifester {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
