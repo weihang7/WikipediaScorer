@@ -3,7 +3,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 
-public class Eat
+public class wikiGUI
 {
     // decrlared variables to be used in the future
     private JFrame window;
@@ -112,7 +112,7 @@ public class Eat
 
     public static void main( String[] args )
     {
-        Eat app = new Eat();
+        wikiGUI app = new wikiGUI();
         JFrame theWindow = app.createGUI();
         theWindow.setVisible(true);
         System.out.println(theWindow.getSize());

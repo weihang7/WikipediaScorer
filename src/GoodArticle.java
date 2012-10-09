@@ -1,11 +1,11 @@
-
 public class GoodArticle {
-	public boolean[] isGood(String[] page){
-		boolean[] ret = null;
-		for (int i=0;i<page.length;i++){
-			if (page[i]=="GA"){
-				ret[i]=true;
-			}
+	public static String getTalkPage(String url){
+		
+	}
+	public static boolean isGood(String page){
+		boolean ret=false;
+		if (page.contains("currentstatus=GA")){
+				ret=true;
 		}
 		return ret;
 	}

@@ -134,8 +134,6 @@ class Fetcher {
 					//Put the content of that node into pageTexts.
 					pageTexts[i*50 + x] = rev.getChildNodes().item(0).getNodeValue();
 				}
-				
-				return pageTexts;
 			}
 			
 			//For each page, request the current revision, get the text from the
