@@ -1,6 +1,5 @@
 import java.awt.*;
-import javax.swing.*;
-import javax.swing.event.*;
+import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 
@@ -9,7 +8,9 @@ public class Eat
     // decrlared variables to be used in the future
     private JFrame window;
     private JTextArea eatInput;
-    
+    private JButton ioButton;
+    private File fileInUse;
+    private JLabel fileNameLabel;
     
     public JFrame createGUI()
     {
@@ -20,9 +21,9 @@ public class Eat
         window.setLayout( new GridLayout(4,1) );
         
         //Made 4 Jpanels
-        p = panel1();
+        p = makeInputPanel();
         window.add(p);
-        p = panel2();
+        p = makeAttachPanel();
         window.add(p);
         p = panel3();
         window.add(p);
@@ -38,60 +39,51 @@ public class Eat
         window.setSize(630,400);
         return window;
     }
-    
-    private JPanel panel1()
+    class ButtonListener implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            //Create a file chooser
+            JFileChooser choose = new JFileChooser();
+            choose.showOpenDialog(null);
+     		fileInUse = choose.getSelectedFile();
+     		ioButton.setVisible(false);
+     		fileNameLabel.setText(fileInUse.getName());
+     		fileNameLabel.setVisible(true);
+            //open the file.
+        }
+    }
+    private JPanel makeInputPanel()
     {
-     JPanel p = new JPanel();
-     JLabel l = new JLabel("Input Text Here:");
-          
-     p.setLayout( new GridLayout(1,2, 10, 10) );
-     p.add(l);
-     
-     eatInput = new JTextArea(10,15);
-     p.add(eatInput);
-     
-     Color bckgrnd = new Color(166,166,166);
-     
-     p.setBackground(bckgrnd);
-     
-     
-     
-     
-     return p;
+    	JPanel p = new JPanel();
+        JLabel l = new JLabel("Input Text Here:");
+        p.setLayout( new GridLayout(1,2, 10, 10) );
+        p.add(l);
+        eatInput = new JTextArea(10,15);
+        p.add(eatInput);
+        Color bckgrnd = new Color(166,166,166);
+        p.setBackground(bckgrnd);
+        return p;
     }
     
-    private JPanel panel2()
+    private JPanel makeAttachPanel()
     {
      JPanel p = new JPanel();
      JLabel l = new JLabel("Attach File Here:");
+     ioButton = new JButton("Open File");
+     ButtonListener readButtonlisten = new ButtonListener();
+     ioButton.addActionListener(readButtonlisten);
+     fileInUse = new File("zero");
+     fileNameLabel = new JLabel("");
+     fileNameLabel.setVisible(false);
+     p.setLayout( new GridLayout(1,2, 10, 10) );
      p.add(l);
-     
-     /* try{
-     BufferedReader in = new BufferedReader(new FileReader("README.md")); 
-     String text = in.readLine(); 
-     in.close();
-     
-     JLabel n = new JLabel(text);
-     
-     System.out.print(text);
-     p.add(n);
-     
+     p.add(ioButton);
+     p.add(fileNameLabel);
      return p;
     }
-    catch (Exception Crap){
-      System.out.println("You IDIOT");
-    }
-    */
-   Color bckgrnd = new Color(50,50,50);
-     
-     p.setBackground(bckgrnd);
-    return p;
-    }
-    
     private JPanel panel3()
     {
-     JPanel p = new JPanel();
-        JButton b = new JButton ("Eat");
+    JPanel p = new JPanel();
+    JButton b = new JButton ("Calculate");
      p.add(b);
      
      Color bckgrnd = new Color(100,100,100);
