@@ -66,7 +66,9 @@ public class Eat
     
     private JPanel makeAttachPanel()
     {
+	//create the panel for attachment files
      JPanel p = new JPanel();
+     //add label,buttons
      JLabel l = new JLabel("Attach File Here:");
      ioButton = new JButton("Open File");
      ButtonListener readButtonlisten = new ButtonListener();
