@@ -55,7 +55,7 @@ class Fetcher {
 		return null;
 	}
 	
-	private static int[] getRandomIDs(int n) {
+	private static String[] getRandomTitles(int n) {
 		/*
 		 * Given a number (n) of random ids to fetch,
 		 * get (n) ids corresponding to real Wikipedia
@@ -63,7 +63,7 @@ class Fetcher {
 		 */
 		
 		try {
-			int[] ids = {};
+			String[] titles = {};
 
 			//Make a request to Wikipedia's API for a list of random pages in XML:
 			Document list = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"+
@@ -74,14 +74,11 @@ class Fetcher {
 			NodeList pages = list.getElementsByTagName("page");
 			
 			//For each page, get its id and save it in "ids":
-			ids = new int[pages.getLength()];
+			titles = new String[pages.getLength()];
 			for (int i = 0; i < pages.getLength(); i += 1) {
-				ids[i] = Integer.valueOf(
-					pages.item(i).getAttributes().getNamedItem("id").getNodeValue()
-				);
+				titles[i] = pages.item(i).getAttributes().getNamedItem("title").getNodeValue();
 			}
-			
-			return ids;
+			return titles;
 		}
 		catch (Exception e) {
 			//Debugging
@@ -91,7 +88,7 @@ class Fetcher {
 		return null;
 	}
 	
-	private static String[] getPageTexts(int[] ids) {
+	private static String[] getPageTexts(String[] titles) {
 		/*
 		 * Given an array of page ids (ids),
 		 * gets the texts of those pages.
@@ -99,10 +96,10 @@ class Fetcher {
 		
 		try {
 			String[] blocksOfFifty = new String[50];
-			String[] pageTexts = new String[ids.length];
+			String[] pageTexts = new String[titles.length];
 			
 			//Separate the page ids into blocks of fifty.
-			for (int i = 0; i < ids.length; i += 1) {
+			for (int i = 0; i < titles.length; i += 1) {
 				if (i%50 == 0) {
 					blocksOfFifty[i/50] = "";
 				}
@@ -110,7 +107,7 @@ class Fetcher {
 					blocksOfFifty[i/50] += "|";
 				}
 				
-				blocksOfFifty[i/50] += ids[i];
+				blocksOfFifty[i/50] += titles[i];
 			}
 			
 			//Get the content of each page. First, we make a marker
@@ -118,7 +115,7 @@ class Fetcher {
 				//Make the request for fifty pages and parse:
 				Document xml = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"+
 									      "action=query&prop=revisions&rvprop=content&"+
-									      "pageids="+blocksOfFifty[i]);
+									      "titles="+blocksOfFifty[i]);
 
 				//Extract the pages from the response:
 				NodeList pages = xml.getElementsByTagName("page");
@@ -138,8 +135,8 @@ class Fetcher {
 			
 			//For each page, request the current revision, get the text from the
 			//XML, and put it into pageTexts.
-			for (int i = 0; i < ids.length; i++) {
-				Document response = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&action=query&prop=revisions&rvprop=content&pageids="+ids[i]);
+			for (int i = 0; i < titles.length; i++) {
+				Document response = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&action=query&prop=revisions&rvprop=content&titles="+titles[i]);
 				pageTexts[i] = response.getElementsByTagName("rev").item(0).getChildNodes().item(0).getNodeValue();
 			}
 			
@@ -154,7 +151,7 @@ class Fetcher {
 	}
 	
 	public static String[] getRandomPageTexts(int n) {
-		return getPageTexts(getRandomIDs(n));
+		return getPageTexts(getRandomTitles(n));
 	}
 	
 }
