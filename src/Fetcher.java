@@ -121,7 +121,6 @@ class Fetcher {
 				Document xml = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"+
 									      "action=query&prop=revisions&rvprop=content&"+
 									      "titles="+blocksOfFifty[i]);
-
 				//Extract the pages from the response:
 				NodeList pages = xml.getElementsByTagName("page");
 												
@@ -136,13 +135,6 @@ class Fetcher {
 					//Put the content of that node into pageTexts.
 					pageTexts[i*50 + x] = rev.getChildNodes().item(0).getNodeValue();
 				}
-			}
-			
-			//For each page, request the current revision, get the text from the
-			//XML, and put it into pageTexts.
-			for (int i = 0; i < titles.length; i++) {
-				Document response = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&action=query&prop=revisions&rvprop=content&titles="+titles[i]);
-				pageTexts[i] = response.getElementsByTagName("rev").item(0).getChildNodes().item(0).getNodeValue();
 			}
 			
 			return pageTexts;
