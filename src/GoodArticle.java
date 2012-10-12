@@ -4,9 +4,14 @@ public class GoodArticle {
 	}
 	public static boolean isGood(String page){
 		boolean ret=false;
-		if (page.contains("currentstatus=GA")){
+		if (page.contains("currentstatus=GA"))
 				ret=true;
-		}
+		return ret;
+	}
+	public static boolean isFeature(String page){
+		boolean ret=false;
+		if (page.contains("currentstatus=FA"))
+			ret=true;
 		return ret;
 	}
 }

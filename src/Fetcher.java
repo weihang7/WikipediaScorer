@@ -1,7 +1,12 @@
-import java.net.*;
-import javax.xml.parsers.*;
-import java.io.*;
-import org.w3c.dom.*;
+import java.net.URL;
+import java.net.URLConnection;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 class Fetcher {
 	private static DocumentBuilderFactory XMLParserFactory = DocumentBuilderFactory.newInstance();

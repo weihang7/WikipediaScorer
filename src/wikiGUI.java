@@ -15,7 +15,7 @@ public class wikiGUI
     public JFrame createGUI()
     {
         //created new JFrame window called Eat
-        window = new JFrame("Eat");
+        window = new JFrame("Wikipedia Scorer");
         JPanel p = null;
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setLayout( new GridLayout(4,1) );
