@@ -1,38 +1,39 @@
 import java.io.*;
-
 import org.apache.poi.hwpf.extractor.*;
 import org.apache.poi.hwpf.*;
-
+//import needed functions
 public class ReadFromFile {
 	public static String readFromDoc(File docfile){
-		WordExtractor extractor = null ;
+		//establishing the receptors of the FileInputStream
+		WordExtractor extractor = null;
 		String ret = "";
 		try {
-		   FileInputStream fis=new FileInputStream(docfile.getAbsolutePath());
-		   HWPFDocument document=new HWPFDocument(fis);
-		   extractor = new WordExtractor(document);
-		   String [] fileData = extractor.getParagraphText();
-		   for(int i=0;i<fileData.length;i++){
-		     if(fileData[i] != null)
-		       ret+=fileData[i];
-		   }
+			//create a FileInputStream that links the document and the extractor
+			FileInputStream fis=new FileInputStream(docfile.getAbsolutePath());
+			HWPFDocument document=new HWPFDocument(fis);
+			extractor = new WordExtractor(document);
+			//extract the text
+			String [] fileData = extractor.getParagraphText();
+			for(int i=0;i<fileData.length;i++){
+				if(fileData[i] != null)
+					ret+=fileData[i];
+			}
 		}
+		// catch exceptions
 		catch(Exception exep){
 			
 		}
 		return ret;
 	}
+	//reading from a txt file
 	public static String readFromTxt(File txtfile){
 		String text="";
-		int read,N=1024*1024;
-		char[] buffer=new char[N];
 		try {
 			FileReader fr=new FileReader(txtfile);
 			BufferedReader br=new BufferedReader(fr);
-			while(true) {
-				read=br.read(buffer,0,N);
-				text+=new String(buffer,0,read);
-				if(read<N) break;
+			String currentline = "";
+			while((currentline=br.readLine())!=null) {
+				text+=currentline;
 			}
 			br.close();
 		 } catch(Exception ex) {
