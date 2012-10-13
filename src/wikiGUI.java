@@ -7,28 +7,28 @@ public class wikiGUI
 {
     // decrlared variables to be used in the future
     private JFrame window;
-    private JTextArea eatInput;
+    private JTextArea textInput;
     private JButton ioButton;
     private File fileInUse;
     private JLabel fileNameLabel;
+    private String textInUse;
     
-    public JFrame createGUI()
+    public void createGUI()
     {
         //created new JFrame window called Eat
         window = new JFrame("Wikipedia Scorer");
-        JPanel p = null;
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setLayout( new GridLayout(4,1) );
         
-        //Made 4 Jpanels
-        p = makeInputPanel();
-        window.add(p);
-        p = makeAttachPanel();
-        window.add(p);
-        p = panel3();
-        window.add(p);
-        p = panel4();
-        window.add(p);
+        //Make 4 Jpanels
+        JPanel inputPanel = makeInputPanel();
+        window.add(inputPanel);
+        JPanel attachPanel = makeAttachPanel();
+        window.add(attachPanel);
+        JPanel calcPanel = makeCalcPanel();
+        window.add(calcPanel);
+        JPanel scorePanel = makeScorePanel();
+        window.add(scorePanel);
         
         window.pack();
         
@@ -37,19 +37,35 @@ public class wikiGUI
         
         //set size of window
         window.setSize(630,400);
-        return window;
+        window.setVisible(true);
     }
-    class ButtonListener implements ActionListener{
+    class FileListener implements ActionListener{
         public void actionPerformed(ActionEvent e){
             //Create a file chooser
             JFileChooser choose = new JFileChooser();
             choose.showOpenDialog(null);
+            //open the file.
      		fileInUse = choose.getSelectedFile();
      		ioButton.setVisible(false);
      		fileNameLabel.setText(fileInUse.getName());
      		fileNameLabel.setVisible(true);
-            //open the file.
+            //get the extension of the file and use the appropriate extractor
+     		int pos = fileNameLabel.getText().lastIndexOf('.');
+    		String ext = fileNameLabel.getText().substring(pos+1);
+    		String ret = "";
+    		if (ext=="txt")
+    			ret=ReadFromFile.readFromTxt(fileInUse);
+    		else if (ext=="doc"||ext=="docx")
+    			ret=ReadFromFile.readFromDoc(fileInUse);
+    		textInUse=ret;
         }
+    }
+    class calcListener implements ActionListener{
+    	public void actionPerformed(ActionEvent e){
+    		if (textInUse==null)
+    			textInUse=textInput.getText();
+    		//TODO add scoring function
+    	}
     }
     private JPanel makeInputPanel()
     {
@@ -57,8 +73,8 @@ public class wikiGUI
         JLabel l = new JLabel("Input Text Here:");
         p.setLayout( new GridLayout(1,2, 10, 10) );
         p.add(l);
-        eatInput = new JTextArea(10,15);
-        p.add(eatInput);
+        textInput = new JTextArea(10,15);
+        p.add(textInput);
         Color bckgrnd = new Color(166,166,166);
         p.setBackground(bckgrnd);
         return p;
@@ -71,7 +87,7 @@ public class wikiGUI
      //add label,buttons
      JLabel l = new JLabel("Attach File Here:");
      ioButton = new JButton("Open File");
-     ButtonListener readButtonlisten = new ButtonListener();
+     FileListener readButtonlisten = new FileListener();
      ioButton.addActionListener(readButtonlisten);
      fileInUse = new File("zero");
      fileNameLabel = new JLabel("");
@@ -82,7 +98,7 @@ public class wikiGUI
      p.add(fileNameLabel);
      return p;
     }
-    private JPanel panel3()
+    private JPanel makeCalcPanel()
     {
     JPanel p = new JPanel();
     JButton b = new JButton ("Calculate");
@@ -95,14 +111,13 @@ public class wikiGUI
      return p;
     }
     
-    private JPanel panel4()
+    private JPanel makeScorePanel()
     {
+     //create a new JPanel and displays the comment
      JPanel p = new JPanel();
      int x = 0;
      JLabel l = new JLabel("You Wrote "+x+"% in the encyclopedic style.");
      p.add(l);
-   
-     
      Color bckgrnd = new Color(50,50,50);
      
      p.setBackground(bckgrnd);
@@ -113,9 +128,6 @@ public class wikiGUI
     public static void main( String[] args )
     {
         wikiGUI app = new wikiGUI();
-        JFrame theWindow = app.createGUI();
-        theWindow.setVisible(true);
-        System.out.println(theWindow.getSize());
+        app.createGUI();
     }
-
 }
