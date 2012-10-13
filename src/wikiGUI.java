@@ -52,7 +52,7 @@ public class wikiGUI
             //get the extension of the file and use the appropriate extractor
      		int pos = fileNameLabel.getText().lastIndexOf('.');
      		String ext = "";
-     		if (pos==-1)
+     		if (pos!=-1)
      			ext = fileNameLabel.getText().substring(pos+1);
     		String ret = "";
     		if (ext=="txt")
