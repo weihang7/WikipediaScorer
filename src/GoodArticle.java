@@ -1,17 +1,11 @@
 public class GoodArticle {
-	public static String getTalkPage(String url){
-		return "Talk:"+url;
+	public static String getTalkPage(String title){
+		return "Talk:"+title;
 	}
 	public static boolean isGood(String page){
-		boolean ret=false;
-		if (page.contains("currentstatus=GA"))
-				ret=true;
-		return ret;
+		return page.contains("currentstatus=GA");
 	}
 	public static boolean isFeature(String page){
-		boolean ret=false;
-		if (page.contains("currentstatus=FA"))
-			ret=true;
-		return ret;
+		return page.contains("currentstatus=FA");
 	}
 }

@@ -2,7 +2,7 @@ import java.util.*;
 class Master {
 	public static void main(String[] args) {
 		// get parsed xml into pages
-		String[] pages = Fetcher.getRandomPageTexts(30);
+		String[] pages = Fetcher.getRandomPageTexts(30,0,1);
 		//declare variable words
 		ArrayList words = new ArrayList(pages.length);
 		//Split the pages into tokens.

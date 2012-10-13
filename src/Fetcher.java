@@ -57,7 +57,7 @@ class Fetcher {
 		return null;
 	}
 	
-	private static String[] getRandomTitles(int n) {
+	private static String[] getRandomTitles(int n, int namespace) {
 		/*
 		 * Given a number (n) of random ids to fetch,
 		 * get (n) ids corresponding to real Wikipedia
@@ -69,7 +69,8 @@ class Fetcher {
 
 			//Make a request to Wikipedia's API for a list of random pages in XML:
 			Document list = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"+
-									   "action=query&list=random&rnnamespace=0&" +
+									   "action=query&list=random&" +
+									   "rnnamespace=" + namespace + "&" +
 									   "rnlimit=" + n);
 			
 			//Get all the pages in a NodeList:
@@ -90,7 +91,7 @@ class Fetcher {
 		return null;
 	}
 	
-	private static String[] getPageTexts(String[] titles) {
+	private static String[] getPageTexts(String[] titles, int revs) {
 		/*
 		 * Given an array of page ids (ids),
 		 * gets the texts of those pages.
@@ -116,9 +117,10 @@ class Fetcher {
 
 			for (int i = 0; i < blocksOfFifty.length; i += 1) {
 				//Make the request for fifty pages and parse:
-				Document xml = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"+
-									      "action=query&prop=revisions&rvprop=content&"+
-									      "titles="+URLEncoder.encode(blocksOfFifty[i]));
+				Document xml = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&" +
+									      "action=query&prop=revisions&rvprop=content&" +
+									      "rvlimit=" + revs + "&" +
+									      "titles=" + URLEncoder.encode(blocksOfFifty[i]));
 				
 				//Extract the pages from the response:
 				NodeList pages = xml.getElementsByTagName("page");
@@ -146,8 +148,8 @@ class Fetcher {
 		return null;
 	}
 	
-	public static String[] getRandomPageTexts(int n) {
-		return getPageTexts(getRandomTitles(n));
+	public static String[] getRandomPageTexts(int n, int namespace, int revs) {
+		return getPageTexts(getRandomTitles(n, namespace), revs);
 	}
 	
 }
