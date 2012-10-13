@@ -12,7 +12,7 @@ public class ReadFromFile {
 		String ret = "";
 		try {
 			//create a FileInputStream that links the document and the extractor
-			FileInputStream fis=new FileInputStream(docfile.getAbsolutePath());
+			FileInputStream fis=new FileInputStream(docfile);
 			HWPFDocument document=new HWPFDocument(fis);
 			extractor = new WordExtractor(document);
 			//extract the text

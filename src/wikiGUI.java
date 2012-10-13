@@ -49,16 +49,8 @@ public class wikiGUI
      		ioButton.setVisible(false);
      		fileNameLabel.setText(fileInUse.getName());
      		fileNameLabel.setVisible(true);
-            //get the extension of the file and use the appropriate extractor
-     		int pos = fileNameLabel.getText().lastIndexOf('.');
-     		String ext = "";
-     		if (pos!=-1)
-     			ext = fileNameLabel.getText().substring(pos+1);
     		String ret = "";
-    		if (ext=="txt")
-    			ret=ReadFromFile.readFromTxt(fileInUse);
-    		else if (ext=="doc"||ext=="docx")
-    			ret=ReadFromFile.readFromDoc(fileInUse);
+    		ret=ReadFromFile.readFromDoc(fileInUse);
     		textInUse=ret;
         }
     }
@@ -66,7 +58,6 @@ public class wikiGUI
     	public void actionPerformed(ActionEvent e){
     		if (textInUse==null)
     			textInUse=textInput.getText();
-    		JOptionPane.showMessageDialog(null,textInUse);
     		//TODO add scoring function
     	}
     }
