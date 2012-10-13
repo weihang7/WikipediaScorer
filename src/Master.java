@@ -12,7 +12,7 @@ class Master {
 		//concatenate the pages
 		ArrayList firstHalf = new ArrayList(words.size()/2);
 		for (int i=0;i<words.size()/2;i++){
-			for (int k=0;k<((ArrayList) words.get(i)).size();k++){
+			for (int k=0;k<((ArrayList)words.get(i)).size();k++){
 				firstHalf.add(((String[])words.get(i))[k]);
 			}
 		}

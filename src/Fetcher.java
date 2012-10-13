@@ -44,7 +44,6 @@ class Fetcher {
 		try {
 			//Set up a new URL object pointing to the desired URL:
 			URL urlToRequest = new URL(url);
-			System.out.println(urlToRequest);
 			//Connect to it:
 			URLConnection connection = urlToRequest.openConnection();
 			//Instantiate an XML Parser (DocumentBuilder) to parse the response:
@@ -98,7 +97,7 @@ class Fetcher {
 		 */
 		
 		try {
-			String[] blocksOfFifty = new String[50];
+			String[] blocksOfFifty = new String[titles.length/50 + (titles.length % 50 == 0 ? 0 : 1)];
 			String[] pageTexts = new String[titles.length];
 			
 			//Separate the page ids into blocks of fifty.
@@ -114,21 +113,24 @@ class Fetcher {
 			}
 			
 			//Get the content of each page. First, we make a marker
-			for (int i = 0; i < blocksOfFifty.length; i++) {
+
+			for (int i = 0; i < blocksOfFifty.length; i += 1) {
 				//Make the request for fifty pages and parse:
 				Document xml = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"+
 									      "action=query&prop=revisions&rvprop=content&"+
 									      "titles="+URLEncoder.encode(blocksOfFifty[i]));
+				
 				//Extract the pages from the response:
 				NodeList pages = xml.getElementsByTagName("page");
-												
+				
 				//Now that we've got our pages, get the content of each one.
 				for (int x = 0; x < pages.getLength(); x++) {
 					//Search the pages' child nodes for a node named "revisions"
 					Node revisions = getFirstChildWithName(pages.item(x), "revisions");
-					System.out.println(revisions);
+					
 					//Search that child node for a node named "rev"
 					Node rev = getFirstChildWithName(revisions, "rev");
+					
 					//Put the content of that node into pageTexts.
 					pageTexts[i*50 + x] = rev.getChildNodes().item(0).getNodeValue();
 				}

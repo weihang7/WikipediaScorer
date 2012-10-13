@@ -108,7 +108,7 @@ public class Tokenizer {
 		
 		//Initiate a an array of string arrays that will utimately contain
 		//the stripped tokens and the alphabet:
-		String[][] returnValue = new String[0][2];
+		String[][] returnValue = {{},{}};
 		
 		returnValue[0] = tokenize(text); //First, tokenize the text and store it
 		returnValue[1] = getAlphabet(returnValue[0],alphabetSize); //Then get the alphabet for that token string
