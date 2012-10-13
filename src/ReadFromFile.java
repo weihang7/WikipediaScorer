@@ -1,4 +1,7 @@
 import java.io.*;
+
+import javax.swing.JOptionPane;
+
 import org.apache.poi.hwpf.extractor.*;
 import org.apache.poi.hwpf.*;
 //import needed functions
@@ -13,15 +16,11 @@ public class ReadFromFile {
 			HWPFDocument document=new HWPFDocument(fis);
 			extractor = new WordExtractor(document);
 			//extract the text
-			String [] fileData = extractor.getParagraphText();
-			for(int i=0;i<fileData.length;i++){
-				if(fileData[i] != null)
-					ret+=fileData[i];
-			}
+			ret=extractor.getText();
 		}
 		// catch exceptions
 		catch(Exception exep){
-			
+			JOptionPane.showMessageDialog(null,"docLoadingException");
 		}
 		return ret;
 	}

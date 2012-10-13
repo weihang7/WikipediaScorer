@@ -51,7 +51,9 @@ public class wikiGUI
      		fileNameLabel.setVisible(true);
             //get the extension of the file and use the appropriate extractor
      		int pos = fileNameLabel.getText().lastIndexOf('.');
-    		String ext = fileNameLabel.getText().substring(pos+1);
+     		String ext = "";
+     		if (pos==-1)
+     			ext = fileNameLabel.getText().substring(pos+1);
     		String ret = "";
     		if (ext=="txt")
     			ret=ReadFromFile.readFromTxt(fileInUse);
@@ -64,6 +66,7 @@ public class wikiGUI
     	public void actionPerformed(ActionEvent e){
     		if (textInUse==null)
     			textInUse=textInput.getText();
+    		JOptionPane.showMessageDialog(null,textInUse);
     		//TODO add scoring function
     	}
     }
@@ -102,6 +105,8 @@ public class wikiGUI
     {
     JPanel p = new JPanel();
     JButton b = new JButton ("Calculate");
+    calcListener calcListen = new calcListener();
+    b.addActionListener(calcListen);
      p.add(b);
      
      Color bckgrnd = new Color(100,100,100);

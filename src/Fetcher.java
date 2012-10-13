@@ -1,5 +1,6 @@
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -17,10 +18,9 @@ class Fetcher {
 		 * (name), return the first child of (node) that has
 		 * the name (name), or null if nonexistent.
 		 */
-		
+
 		//Get the children of node:
 		NodeList children = node.getChildNodes();
-		
 		for (int i = 0; i < children.getLength(); i += 1) {
 			if (children.item(i).getNodeName() == name) {
 				//For each child, if the child has the desired name,
@@ -44,13 +44,11 @@ class Fetcher {
 		try {
 			//Set up a new URL object pointing to the desired URL:
 			URL urlToRequest = new URL(url);
-			
+			System.out.println(urlToRequest);
 			//Connect to it:
 			URLConnection connection = urlToRequest.openConnection();
-			
 			//Instantiate an XML Parser (DocumentBuilder) to parse the response:
 			DocumentBuilder XMLParser = XMLParserFactory.newDocumentBuilder();
-			
 			//Parse the response and return.
 			return XMLParser.parse(connection.getInputStream());
 		}
@@ -120,18 +118,17 @@ class Fetcher {
 				//Make the request for fifty pages and parse:
 				Document xml = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"+
 									      "action=query&prop=revisions&rvprop=content&"+
-									      "titles="+blocksOfFifty[i]);
+									      "titles="+URLEncoder.encode(blocksOfFifty[i]));
 				//Extract the pages from the response:
 				NodeList pages = xml.getElementsByTagName("page");
 												
 				//Now that we've got our pages, get the content of each one.
-				for (int x = 0; x < pages.getLength(); x += 1) {
+				for (int x = 0; x < pages.getLength(); x++) {
 					//Search the pages' child nodes for a node named "revisions"
 					Node revisions = getFirstChildWithName(pages.item(x), "revisions");
-					
+					System.out.println(revisions);
 					//Search that child node for a node named "rev"
 					Node rev = getFirstChildWithName(revisions, "rev");
-					
 					//Put the content of that node into pageTexts.
 					pageTexts[i*50 + x] = rev.getChildNodes().item(0).getNodeValue();
 				}
@@ -140,7 +137,7 @@ class Fetcher {
 			return pageTexts;
 		}
 		catch (Exception e) {
-			System.out.println("Exception in getPageTexts:" + e.getMessage());
+			System.out.println("Exception in getPageTexts:" + e);
 		}
 		
 		//If exception was thrown, return null.
