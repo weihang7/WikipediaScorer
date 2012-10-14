@@ -13,21 +13,21 @@ public class JSON {
 				Object[] currentObjectArray = currentElement.keySet().toArray();
 				String[] currentKeySet = Arrays.asList(currentObjectArray).toArray(
 						new String[currentObjectArray.length]);
-				ret+=keySet[i]+":{";
+				ret+="\""+keySet[i]+"\""+":{";
 				for (int k=0;k<currentElement.size();k++){
-					ret+=currentKeySet[k]+":"+currentElement.get(currentKeySet[k])+
+					ret+="\""+currentKeySet[k]+"\""+":"+currentElement.get(currentKeySet[k])+
 							(k == currentKeySet.length - 1 ? "" : ",");
 				}
 				// add comma if it is not the final key-value pair
-				ret+="}" + (i == currentKeySet.length - 1 ? "" : ",");
+				ret+="}" + (i == keySet.length - 1 ? "" : ",");
 			}
 			ret+="}";
 		}
 		else{
 			for (int k=0;k<keySet.length-1;k++){
-				ret+=keySet[k]+":"+table.get(keySet[k])+",";
+				ret+="\""+keySet[k]+"\""+":"+table.get(keySet[k])+",";
 			}
-			ret+=keySet[keySet.length-1]+":"+table.get(keySet[keySet.length-1]);
+			ret+="\""+keySet[keySet.length-1]+"\""+":"+table.get(keySet[keySet.length-1]);
 			ret+="}";
 		}
 		return ret;

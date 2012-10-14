@@ -218,7 +218,7 @@ class Fetcher {
 			// return.
 			return pageTexts;
 		} catch (Exception e) {
-			System.out.println("Exception in getPageRevisions:" + e);
+			e.printStackTrace(System.out);
 		}
 
 		// If exception was thrown, return null.

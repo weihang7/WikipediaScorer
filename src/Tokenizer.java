@@ -23,7 +23,7 @@ public class Tokenizer {
 							 .replaceAll("\\{\\{[^\\{\\}]*\\}\\}","") //Take out all braced information, which doesn't show to the reader
 							 .replaceAll("\\n+",".") //Replace line breaks with periods
 							 .replaceAll("[^\\w\\. ]","") //Take out punctuation and special characters
-							 .replaceAll(" +"," ") //Remove duplicatespaces
+							 .replaceAll(" +"," ") //Remove duplicate spaces
 							 .replaceAll("(?: ?\\. ?)+"," . ") //Remove duplicate periods
 							 .split(" "); //Split by spaces.
 		
@@ -36,7 +36,7 @@ public class Tokenizer {
 		 * the (size) most common tokens, for use as
 		 * an alphabet in later Markov counting.
 		 */
-		
+				
 		//Initiate the table where we'll store our counts:
 		Hashtable counts = new Hashtable();
 		
@@ -49,18 +49,29 @@ public class Tokenizer {
 				counts.put(text[i],(Integer)counts.get(text[i]) + 1);
 			}
 			else {
-				//Otherwise, intiate the count of this word as 1.
+				//Otherwise, initiate the count of this word as 1.
 				counts.put(text[i], 1);
 			}
+			boolean shouldCheck = true;
 			for (int x = 0; x < size; x += 1) {
-				if (alphabet[x] == null) {
-					//If the alphabet array is not full yet, add this token to it:
-					alphabet[x] = text[i];
+				if (text[i].equals(alphabet[x])) {
+					//If the current word is already in the alphabet, continue.
+					shouldCheck = false;
 				}
-				else if ((Integer)counts.get(text[i]) > (Integer)counts.get(alphabet[x])) {
-					//If it is full, but the current word is now more common than a word already in it, replace
-					//the less common word with the current one.
-					alphabet[x] = text[i];
+			}
+			if (shouldCheck) {
+				for (int x = 0; x < size; x += 1) {
+					if (alphabet[x] == null) {
+						//If the alphabet array is not full yet, add this token to it:
+						alphabet[x] = text[i];
+						break;
+					}
+					else if ((Integer)counts.get(text[i]) > (Integer)counts.get(alphabet[x])) {
+						//If it is full, but the current word is now more common than a word already in it, replace
+						//the less common word with the current one.
+						alphabet[x] = text[i];
+						break;
+					}
 				}
 			}
 		}

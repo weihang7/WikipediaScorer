@@ -55,14 +55,13 @@ class Smoother {
 			
 			if (totalUnseen == 0.0) {
 				//If there were no unseen tokens seen in the held out
-				//corpus, accomodate anyway.
+				//corpus, accommodate anyway.
 				totalUnseen = 1.0;
 				numberUnseen = 1;
 			}
-			
-			//Save this number:
-			finalSmoothedCounts.put("__UNSEEN__",totalUnseen/numberUnseen);
 		}
+		//Save this number:
+		finalSmoothedCounts.put("__UNSEEN__",totalUnseen/numberUnseen);
 		
 		return finalSmoothedCounts;
 	}

@@ -26,16 +26,32 @@ class Master {
 		for (int i = 0; i < pages.length; i += 1) {
 			String[] tokens = Tokenizer.tokenize(pages[i]);
 			for (int x = 0; x < tokens.length; x += 1) {
-				concatenatedTokenArrayList.add(tokens[i]);
+				concatenatedTokenArrayList.add(tokens[x]);
 			}
 		}
 		
 		//Convert the ArrayList into an Array:
 		String[] concatenatedTokens = (String[]) concatenatedTokenArrayList.toArray(new String[concatenatedTokenArrayList.size()]);
-
+		
 		//Get an alphabet from our tokens:
-		String[] alphabet = Tokenizer.getAlphabet(concatenatedTokens, ALPHABET_SIZE);
-
+		String[] uncutAlphabet = Tokenizer.getAlphabet(concatenatedTokens, ALPHABET_SIZE);
+		
+		//If we didn't fill the alphabet, shorten it:
+		String[] alphabet = new String[uncutAlphabet.length];
+		for (int i = 0; i < uncutAlphabet.length; i += 1) {
+			if (uncutAlphabet[i] == null) {
+				//If the ith uncutAlphabet element is null, then we don't care
+				//about it or any element beyond:
+				alphabet = new String[i + 1];
+				break;
+			}
+		}
+		
+		//Copy over the first part of uncutAlphabet.
+		for (int i = 0; i < alphabet.length; i += 1) {
+			alphabet[i] = uncutAlphabet[i];
+		}
+		
 		//Split the tokens into front and back halves:
 		String[] frontHalf = new String[concatenatedTokens.length/2];
 		String[] backHalf = new String[concatenatedTokens.length/2 + (concatenatedTokens.length % 2 == 0 ? 0 : 1)];
@@ -49,12 +65,12 @@ class Master {
 		}
 				
 		//Count bigrams and occurrences in the front half.
-		Hashtable[] frontHalfCountsPacked = Counter.count(frontHalf);
+		Hashtable[] frontHalfCountsPacked = Counter.count(frontHalf, alphabet);
 		Hashtable frontHalfOccurrence = frontHalfCountsPacked[0];
 		Hashtable frontHalfBigrams = frontHalfCountsPacked[1];
 		
 		//Count bigrams and occurrences in the back half.
-		Hashtable[] backHalfCountsPacked = Counter.count(backHalf);
+		Hashtable[] backHalfCountsPacked = Counter.count(backHalf, alphabet);
 		Hashtable backHalfOccurrence = backHalfCountsPacked[0];
 		Hashtable backHalfBigrams = backHalfCountsPacked[1];
 		
@@ -73,13 +89,18 @@ class Master {
 					)
 			);
 		}
-
+		
 		try {
 			FileWriter occurrenceFileWriter = new FileWriter(OCCURRENCE_TARGET_PATH);
 			FileWriter bigramsFileWriter = new FileWriter(BIGRAM_TARGET_PATH);
+			BufferedWriter occurrenceBufferedWriter = new BufferedWriter(occurrenceFileWriter);
+			BufferedWriter bigramsBufferedWriter = new BufferedWriter(bigramsFileWriter);
 			
-			occurrenceFileWriter.write(JSON.serialize(smoothedCounts));
-			bigramsFileWriter.write(JSON.serialize(smoothedBigrams));
+			occurrenceBufferedWriter.write(JSON.serialize(smoothedCounts));
+			bigramsBufferedWriter.write(JSON.serialize(smoothedBigrams));
+		
+			occurrenceBufferedWriter.close();
+			bigramsBufferedWriter.close();
 		}
 		catch (Exception e) {
 			System.out.println("IO Error:" + e.getMessage());

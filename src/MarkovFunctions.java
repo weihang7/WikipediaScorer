@@ -51,8 +51,13 @@ class MarkovFunctions {
 		String[] keys = (String[])a.keySet().toArray(new String[a.keySet().size()]);
 		Hashtable result = new Hashtable();
 		for (int i = 0; i < keys.length; i += 1) {
-			result.put(keys[i], (((Double) a.get(keys[i])) +
-								 ((Double)b.get(keys[i])) / 2.0));
+			//Get the approximated counts for keys[i] in each hasthable (__UNSEEN__ if not
+			//in the hashtable).
+			Double aValue = (Double) (a.containsKey(keys[i]) ? a.get(keys[i]) : a.get("__UNSEEN__"));
+			Double bValue = (Double) (b.containsKey(keys[i]) ? b.get(keys[i]) : a.get("__UNSEEN__"));
+			
+			//Put the average of those values into result.
+			result.put(keys[i], (aValue + bValue / 2.0));
 		}
 		return result;
 	}

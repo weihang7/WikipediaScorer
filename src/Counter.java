@@ -1,7 +1,7 @@
 import java.util.*;
 
 class Counter {
-	public static Hashtable[] count(String[] corpus) {
+	public static Hashtable[] count(String[] corpus, String[] alphabet) {
 		/*
 		 * Given an array of tokens (corpus),
 		 * constructs a degree 2 Markov model out of it
@@ -39,6 +39,16 @@ class Counter {
 			//Update lastHash for the next iteration.
 			lastHash = (Hashtable)bigrams.get(corpus[i]);
 		}
+		
+		for (int i = 0; i < alphabet.length; i += 1) {
+			if (!bigrams.containsKey(alphabet[i])) {
+				bigrams.put(alphabet[i], new Hashtable());
+			}
+			if (!occurs.containsKey(alphabet[i])) {
+				occurs.put(alphabet[i], 0.0);
+			}
+		}
+		
 		return both;
 	}
 }
