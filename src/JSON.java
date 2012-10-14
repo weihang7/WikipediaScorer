@@ -27,7 +27,7 @@ public class JSON {
 		}
 		return ret;
 	}
-	public static Hashtable JSONParser(String inputJson){
+	public static Hashtable parse(String inputJson){
 		Hashtable ret = new Hashtable();
 		boolean inName = true;
 		int currentIndex = 0;
@@ -54,14 +54,15 @@ public class JSON {
 			currentIndex+=1;
 			valueOuterLoop:
 			while (currentIndex<inputJson.length()){
-				if (inputJson.charAt(currentIndex)==','){
+				System.out.println(inputJson.charAt(currentIndex));
+				if (inputJson.charAt(currentIndex)==','||inputJson.charAt(currentIndex)=='}'){
 					preliminaryEvaluation = inputJson.substring(nameFinishedIndex+1, currentIndex);
 					System.out.println("pelim"+preliminaryEvaluation);
 					if (preliminaryEvaluation.startsWith("{")){
 						continueSearching = true;
 						if (preliminaryEvaluation.endsWith("}")){
 							continueSearching = false;
-							ret.put(currentName, JSONParser(preliminaryEvaluation));
+							ret.put(currentName, parse(preliminaryEvaluation));
 							break valueOuterLoop;
 						}
 					}
@@ -76,8 +77,5 @@ public class JSON {
 			}
 		}
 		return ret;
-	}
-	public static void main (String[] args){
-		System.out.println(JSONParser("{b:{b:2,a:1},c:{e:5,d:7}}"));
 	}
 }
