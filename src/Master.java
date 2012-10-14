@@ -29,17 +29,17 @@ class Master {
 		}
 		
 		//Convert the ArrayList into an Array:
-		String[] concatenatedTokens = concatenatedTokenArrayList.toArray();
+		String[] concatenatedTokens = (String[]) concatenatedTokenArrayList.toArray(new String[concatenatedTokenArrayList.size()]);
 		
 		//Split the tokens into front and back halves:
 		String[] frontHalf = new String[concatenatedTokens.length/2];
-		String[] backHalf = new String[concatenatedTokens.length/2 + (concatenatedTokens % 2 == 0 ? 0 : 1)];
+		String[] backHalf = new String[concatenatedTokens.length/2 + (concatenatedTokens.length % 2 == 0 ? 0 : 1)];
 		for (int i = 0; i < concatenatedTokens.length; i += 1) {
 			if (i < concatenatedTokens.length/2) {
 				frontHalf[i] = concatenatedTokens[i];
 			}
 			else {
-				backHalf[i - concatenatedTokens/2] = concatenatedTokens[i];
+				backHalf[i - concatenatedTokens.length/2] = concatenatedTokens[i];
 			}
 		}
 		
@@ -50,21 +50,21 @@ class Master {
 		
 		//Count bigrams and occurrences in the back half.
 		Hashtable[] backHalfCountsPacked = Counter.count(backHalf);
-		backHalfOccurrence = backHalfCountsPacked[0];
-		backHalfBigrams = backHalfCountsPacked[1];
+		Hashtable backHalfOccurrence = backHalfCountsPacked[0];
+		Hashtable backHalfBigrams = backHalfCountsPacked[1];
 		
 		//Smooth the occurence counts.
-		Hashtable smoothedCounts = Smoother.fullCrossSmoothing(frontHalfCounts, backHalfCounts, alphabet.length);
+		Hashtable smoothedCounts = Smoother.fullCrossSmoothing(frontHalfOccurrence, backHalfOccurrence, ALPHABET_SIZE);
 		
 		//Smooth the bigram counts.
 		Hashtable smoothedBigrams = new Hashtable();
-		for (int i = 0; i < alphabet.length; i += 1) {
+		for (int i = 0; i < ALPHABET_SIZE.length; i += 1) {
 			smoothedBigrams.put(
-					alphabet[i],
+					ALPHABET_SIZE[i],
 					Smoother.fullCrossSmoothing(
-							(Hashtable)frontHalfBigrams.get(alphabet[i]),
-							(Hashtable)backHalfBigrams.get(alphabet[i]),
-							alphabet.length
+							(Hashtable)frontHalfBigrams.get(ALPHABET_SIZE[i]),
+							(Hashtable)backHalfBigrams.get(ALPHABET_SIZE[i]),
+							ALPHABET_SIZE.length
 					)
 			);
 		}
@@ -72,7 +72,7 @@ class Master {
 		FileWriter occurrenceFileWriter = new FileWriter(OCCURRENCE_TARGET_PATH);
 		FileWriter bigramsFileWriter = new FileWriter(BIGRAMS_TARGET_PATH);
 		
-		occurrenceFileWriter.write(JSONSerializer.serialize(smoothedCounts));
-		bigramsFileWriter.write(JSONSerializer.serialize(smoothedBigrams));
+		occurrenceFileWriter.write(JSON.serialize(smoothedCounts));
+		bigramsFileWriter.write(JSON.serialize(smoothedBigrams));
 	}
 }

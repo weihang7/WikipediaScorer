@@ -76,7 +76,7 @@ class Smoother {
 		return heldOutSmoothing(training, held, alphabetSize);
 	}
 	
-	public static Hashtable fullCrossSmoothing(Hashtable a, Hashtable b, Hashtable alphabetSize) {
-		return MarkovFunctions.averageHashtables(fullSmoothing(a, b, alphabetSize),fullSmoothing(b, a, alphabetSize));
+	public static Hashtable fullCrossSmoothing(Hashtable a, Hashtable b, int aLPHABET_SIZE) {
+		return MarkovFunctions.averageHashtables(fullSmoothing(a, b, aLPHABET_SIZE),fullSmoothing(b, a, aLPHABET_SIZE));
 	}
 }
