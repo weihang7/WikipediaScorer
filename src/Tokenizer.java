@@ -46,7 +46,7 @@ public class Tokenizer {
 		for (int i = 0; i < text.length; i += 1) {
 			if (counts.containsKey(text[i])) {
 				//If we've seen this word before, add one to our count of it:
-				counts.put(text[i],(Integer)counts.get(text[i]) + 1);
+				counts.put(text[i], (Integer) counts.get(text[i]) + 1);
 			}
 			else {
 				//Otherwise, initiate the count of this word as 1.

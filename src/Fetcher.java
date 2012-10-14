@@ -137,7 +137,7 @@ class Fetcher {
 
 				// For each page, get its id and save it in "ids":
 				for (int x = 0; x < pages.getLength(); x += 1) {
-					titles.add(pages.item(i).getAttributes()
+					titles.add(pages.item(x).getAttributes()
 							.getNamedItem("title").getNodeValue());
 				}
 			}
@@ -146,7 +146,7 @@ class Fetcher {
 			return (String[]) titles.toArray(new String[titles.size()]);
 		} catch (Exception e) {
 			// Debugging
-			System.out.println("Exception in getRandomIDs:" + e.getMessage());
+			System.out.println("Exception in getRandomTitles:" + e.getMessage());
 		}
 
 		// If exception was thrown, return null.
@@ -180,15 +180,12 @@ class Fetcher {
 				// Make the request for fifty pages and parse:
 				Document xml = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"
 						+ "action=query&prop=revisions&rvprop=content&"
-						+ "rvlimit="
-						+ revs
-						+ "&"
 						+ "titles="
 						+ URLEncoder.encode(blocksOfFifty[i]));
-
+				
 				// Extract the pages from the response:
 				NodeList pages = xml.getElementsByTagName("page");
-
+				
 				// Now that we've got our pages, get the content of each one.
 				for (int x = 0; x < pages.getLength(); x += 1) {
 					// Search the pages' child nodes for a node named
@@ -206,7 +203,7 @@ class Fetcher {
 					}
 
 					pageTexts.put(
-							pages.item(i)
+							pages.item(x)
 								 .getAttributes()
 							     .getNamedItem("title")
 							     .getNodeValue(),
@@ -233,7 +230,7 @@ class Fetcher {
 										 AnonymousFunction filter) {
 		//Get one revisions from each article:
 		Hashtable packed = getPageRevisions(titles, 1, filter);
-		
+				
 		//Initialize our resul as an empty Hashtable:
 		Hashtable result = new Hashtable();
 		

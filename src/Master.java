@@ -18,7 +18,7 @@ class Master {
 		Hashtable pageHashtable = Fetcher.getRandomPageTexts(NUMBER_OF_ARTICLES,0);
 		String[] pages = (String[]) pageHashtable.values()
 												 .toArray(new String[pageHashtable.values().size()]);
-		
+				
 		//Set up a place to put all our tokens:
 		ArrayList concatenatedTokenArrayList = new ArrayList();
 		
@@ -42,11 +42,11 @@ class Master {
 			if (uncutAlphabet[i] == null) {
 				//If the ith uncutAlphabet element is null, then we don't care
 				//about it or any element beyond:
-				alphabet = new String[i + 1];
+				alphabet = new String[i];
 				break;
 			}
 		}
-		
+				
 		//Copy over the first part of uncutAlphabet.
 		for (int i = 0; i < alphabet.length; i += 1) {
 			alphabet[i] = uncutAlphabet[i];
