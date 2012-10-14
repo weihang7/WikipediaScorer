@@ -30,40 +30,47 @@ public class JSON {
 	public static Hashtable JSONParser(String inputJson){
 		Hashtable ret = new Hashtable();
 		boolean inName = true;
-		int currentIndex = 1;
+		int currentIndex = 0;
 		int nameFinishedIndex = 1;
+		int startingIndex = 1;
 		String currentName = "";
 		boolean continueSearching = false;
 		String preliminaryEvaluation = "";
 		String valueString = "";
 		while (currentIndex<inputJson.length()){
+			currentIndex+=1;
+			startingIndex = currentIndex;
 			nameOuterLoop:
 			while (currentIndex<inputJson.length()){
 				if (inputJson.charAt(currentIndex)==':'){
 					inName = false;
-					currentName = inputJson.substring(1, currentIndex-1);
+					currentName = inputJson.substring(startingIndex, currentIndex);
 					break nameOuterLoop;
 				}
 				currentIndex+=1;
 			}
-			nameFinishedIndex = currentIndex+1;
+			System.out.println("Name:"+currentName);
+			nameFinishedIndex = currentIndex;
 			currentIndex+=1;
 			valueOuterLoop:
 			while (currentIndex<inputJson.length()){
 				if (inputJson.charAt(currentIndex)==','){
-					preliminaryEvaluation = inputJson.substring(nameFinishedIndex, currentIndex-1);
-					System.out.println(valueString);
+					preliminaryEvaluation = inputJson.substring(nameFinishedIndex+1, currentIndex);
+					System.out.println("pelim"+preliminaryEvaluation);
 					if (preliminaryEvaluation.startsWith("{")){
 						continueSearching = true;
-						if (preliminaryEvaluation.endsWith("}"))
+						if (preliminaryEvaluation.endsWith("}")){
 							continueSearching = false;
+							ret.put(currentName, JSONParser(preliminaryEvaluation));
+							break valueOuterLoop;
+						}
 					}
 					else{
-						valueString = preliminaryEvaluation;
+						valueString = inputJson.substring(nameFinishedIndex+1, currentIndex);
 						ret.put(currentName,Double.parseDouble(valueString));
-					}
-					if (!continueSearching)
+						System.out.println("value:"+valueString);
 						break valueOuterLoop;
+					}
 				}
 				currentIndex+=1;
 			}
