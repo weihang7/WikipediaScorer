@@ -223,12 +223,20 @@ class Fetcher {
 		return result;
 	}
 	
+	public static String[] getPageTexts(String[] titles) {
+		return getPageTexts(titles, AnonymousFunction.ECHOER);
+	}
+	
 	public static String[][] getRandomPageRevisions(int n, int namespace, int revs, AnonymousFunction titleFilter, AnonymousFunction textFilter) {
 		return getPageRevisions(getRandomTitles(n, namespace, titleFilter), revs, textFilter);
 	}
 	
 	public static String[][] getRandomPageRevisions(int n, int namespace, int revs) {
 		return getPageRevisions(getRandomTitles(n, namespace), revs);
+	}
+	
+	public static String[] getRandomPageTexts(int n, int namespace) {
+		return getPageTexts(getRandomTitles(n, namespace));
 	}
 	
 	private static String[][] getRandomArticleWithTalkQualification(int n, int revs, final AnonymousFunction qualifier) {
@@ -245,7 +253,7 @@ class Fetcher {
 			public Object call(Object... args) {
 				//Clone the first argument to avoid namespace clashes,
 				//and call it "titles" to be convenient.
-				ArrayList titles = (ArrayList)args[0].clone();
+				ArrayList titles = (ArrayList) ((ArrayList)args[0]).clone();
 				
 				String[] talkTitles = new String[titles.size()];
 				

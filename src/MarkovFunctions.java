@@ -51,7 +51,7 @@ class MarkovFunctions {
 		String[] keys = (String[])a.keySet().toArray();
 		Hashtable result = new Hashtable();
 		for (int i = 0; i < keys.length; i += 1) {
-			result.put(keys[i], ((Integer)a[keys[i]] + (Integer)b[keys[i]]) / 2.0);
+			result.put(keys[i], ((Integer)a.get(keys[i]) + (Integer)b.get(keys[i])) / 2.0);
 		}
 		return result;
 	}

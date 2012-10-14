@@ -15,7 +15,7 @@ class Master {
 		final String BIGRAM_TARGET_PATH = args[3];
 		
 		//Fetch random pages and parse:
-		String[] pages = Fetcher.getRandomPageTexts(NUMBER_OF_ARTICLES,0,1);
+		String[] pages = Fetcher.getRandomPageTexts(NUMBER_OF_ARTICLES,0);
 
 		//Set up a place to put all our tokens:
 		ArrayList concatenatedTokenArrayList = new ArrayList();
@@ -30,7 +30,10 @@ class Master {
 		
 		//Convert the ArrayList into an Array:
 		String[] concatenatedTokens = (String[]) concatenatedTokenArrayList.toArray(new String[concatenatedTokenArrayList.size()]);
-		
+
+		//Get an alphabet from our tokens:
+		String[] alphabet = Tokenizer.getAlphabet(concatenatedTokens, ALPHABET_SIZE);
+
 		//Split the tokens into front and back halves:
 		String[] frontHalf = new String[concatenatedTokens.length/2];
 		String[] backHalf = new String[concatenatedTokens.length/2 + (concatenatedTokens.length % 2 == 0 ? 0 : 1)];
@@ -42,7 +45,7 @@ class Master {
 				backHalf[i - concatenatedTokens.length/2] = concatenatedTokens[i];
 			}
 		}
-		
+				
 		//Count bigrams and occurrences in the front half.
 		Hashtable[] frontHalfCountsPacked = Counter.count(frontHalf);
 		Hashtable frontHalfOccurrence = frontHalfCountsPacked[0];
@@ -58,21 +61,25 @@ class Master {
 		
 		//Smooth the bigram counts.
 		Hashtable smoothedBigrams = new Hashtable();
-		for (int i = 0; i < ALPHABET_SIZE.length; i += 1) {
+		for (int i = 0; i < alphabet.length; i += 1) {
 			smoothedBigrams.put(
-					ALPHABET_SIZE[i],
+					alphabet[i],
 					Smoother.fullCrossSmoothing(
-							(Hashtable)frontHalfBigrams.get(ALPHABET_SIZE[i]),
-							(Hashtable)backHalfBigrams.get(ALPHABET_SIZE[i]),
-							ALPHABET_SIZE.length
+							(Hashtable)frontHalfBigrams.get(alphabet[i]),
+							(Hashtable)backHalfBigrams.get(alphabet[i]),
+							ALPHABET_SIZE
 					)
 			);
 		}
-		
-		FileWriter occurrenceFileWriter = new FileWriter(OCCURRENCE_TARGET_PATH);
-		FileWriter bigramsFileWriter = new FileWriter(BIGRAM_TARGET_PATH);
-		
-		occurrenceFileWriter.write(JSON.serialize(smoothedCounts));
-		bigramsFileWriter.write(JSON.serialize(smoothedBigrams));
+		try {
+			FileWriter occurrenceFileWriter = new FileWriter(OCCURRENCE_TARGET_PATH);
+			FileWriter bigramsFileWriter = new FileWriter(BIGRAM_TARGET_PATH);
+			
+			occurrenceFileWriter.write(JSON.serialize(smoothedCounts));
+			bigramsFileWriter.write(JSON.serialize(smoothedBigrams));
+		}
+		catch (Exception e) {
+			System.out.println("IO Error:" + e.getMessage());
+		}
 	}
 }
