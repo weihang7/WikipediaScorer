@@ -1,4 +1,3 @@
-import java.io.File;
 import java.util.*;
 public class JSON {
 	public static String serialize(Hashtable table){
@@ -28,20 +27,50 @@ public class JSON {
 		}
 		return ret;
 	}
-	public static void writeSerializedTable(String serialized){
-		
+	public static Hashtable JSONParser(String inputJson){
+		Hashtable ret = new Hashtable();
+		boolean inName = true;
+		int currentIndex = 1;
+		int nameFinishedIndex = 1;
+		String currentName = "";
+		boolean continueSearching = false;
+		String preliminaryEvaluation = "";
+		String valueString = "";
+		while (currentIndex<inputJson.length()){
+			nameOuterLoop:
+			while (currentIndex<inputJson.length()){
+				if (inputJson.charAt(currentIndex)==':'){
+					inName = false;
+					currentName = inputJson.substring(1, currentIndex-1);
+					break nameOuterLoop;
+				}
+				currentIndex+=1;
+			}
+			nameFinishedIndex = currentIndex+1;
+			currentIndex+=1;
+			valueOuterLoop:
+			while (currentIndex<inputJson.length()){
+				if (inputJson.charAt(currentIndex)==','){
+					preliminaryEvaluation = inputJson.substring(nameFinishedIndex, currentIndex-1);
+					System.out.println(valueString);
+					if (preliminaryEvaluation.startsWith("{")){
+						continueSearching = true;
+						if (preliminaryEvaluation.endsWith("}"))
+							continueSearching = false;
+					}
+					else{
+						valueString = preliminaryEvaluation;
+						ret.put(currentName,Double.parseDouble(valueString));
+					}
+					if (!continueSearching)
+						break valueOuterLoop;
+				}
+				currentIndex+=1;
+			}
+		}
+		return ret;
 	}
 	public static void main (String[] args){
-		Hashtable a = new Hashtable();
-		Hashtable b = new Hashtable();
-		Hashtable c = new Hashtable();
-		c.put("d", 7);
-		c.put("e", 5);
-		b.put("a", 1);
-		b.put("b", 2);
-		a.put("b",b);
-		a.put("c", c);
-		System.out.println(serialize(a));
+		System.out.println(JSONParser("{b:{b:2,a:1},c:{e:5,d:7}}"));
 	}
-
 }
