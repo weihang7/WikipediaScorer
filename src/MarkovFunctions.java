@@ -49,7 +49,7 @@ class MarkovFunctions {
 
 	public static Hashtable averageHashtables(Hashtable a, Hashtable b) {
 		String[] keys = (String[])a.keySet().toArray();
-		Hasthable result = new Hashtable();
+		Hashtable result = new Hashtable();
 		for (int i = 0; i < keys.length; i += 1) {
 			result.put(keys[i], ((Integer)a[keys[i]] + (Integer)b[keys[i]]) / 2.0);
 		}
