@@ -15,8 +15,10 @@ class Master {
 		final String BIGRAM_TARGET_PATH = args[3];
 		
 		//Fetch random pages and parse:
-		String[] pages = Fetcher.getRandomPageTexts(NUMBER_OF_ARTICLES,0);
-
+		Hashtable pageHashtable = Fetcher.getRandomPageTexts(NUMBER_OF_ARTICLES,0);
+		String[] pages = (String[]) pageHashtable.values()
+												 .toArray(new String[pageHashtable.values().size()]);
+		
 		//Set up a place to put all our tokens:
 		ArrayList concatenatedTokenArrayList = new ArrayList();
 		
@@ -71,6 +73,7 @@ class Master {
 					)
 			);
 		}
+
 		try {
 			FileWriter occurrenceFileWriter = new FileWriter(OCCURRENCE_TARGET_PATH);
 			FileWriter bigramsFileWriter = new FileWriter(BIGRAM_TARGET_PATH);

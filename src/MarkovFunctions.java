@@ -48,10 +48,11 @@ class MarkovFunctions {
 	}
 
 	public static Hashtable averageHashtables(Hashtable a, Hashtable b) {
-		String[] keys = (String[])a.keySet().toArray();
+		String[] keys = (String[])a.keySet().toArray(new String[a.keySet().size()]);
 		Hashtable result = new Hashtable();
 		for (int i = 0; i < keys.length; i += 1) {
-			result.put(keys[i], ((Integer)a.get(keys[i]) + (Integer)b.get(keys[i])) / 2.0);
+			result.put(keys[i], (((Double) a.get(keys[i])) +
+								 ((Double)b.get(keys[i])) / 2.0));
 		}
 		return result;
 	}
@@ -75,7 +76,7 @@ class MarkovFunctions {
 		 */
 		
 		//Get the hashtable's keys:
-		String[] keys = (String[])table.keySet().toArray();
+		String[] keys = (String[])table.keySet().toArray(new String[table.keySet().size()]);
 		
 		//Initiate our return hashtable:
 		Hashtable inverted = new Hashtable();

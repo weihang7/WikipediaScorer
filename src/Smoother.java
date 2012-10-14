@@ -9,10 +9,10 @@ class Smoother {
 		//Initiate our hashtables:
 		Hashtable invertedTraining = MarkovFunctions.invertHashtable(training);
 		Hashtable finalSmoothedCounts = new Hashtable();
-		Double[] invertedKeys = (Double[])invertedTraining.keySet().toArray();
+		Double[] invertedKeys = (Double[])invertedTraining.keySet().toArray(new Double[invertedTraining.keySet().size()]);
 		
 		//Get the tokens that were seen in the held out corpus:
-		String[] heldKeys = (String[])held.keySet().toArray();
+		String[] heldKeys = (String[])held.keySet().toArray(new String[held.keySet().size()]);
 		
 		for (int i = 0; i < invertedKeys.length; i += 1) {
 			//Get all the tokens who were seen this many times:
