@@ -1,6 +1,7 @@
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -11,6 +12,18 @@ import org.w3c.dom.NodeList;
 
 class Fetcher {
 	private static DocumentBuilderFactory XMLParserFactory = DocumentBuilderFactory.newInstance();
+	
+	private static abstract class AnonymousFunction {
+		
+		private static final AnonymousFunction ECHOER = new AnonymousFunction() {
+			public Object call(Object... args) {
+				return args[0];
+			}
+		};
+		
+		//Super simple implementation of something that can act like an anonymous function
+		public abstract Object call(Object... args);
+	}
 	
 	private static Node getFirstChildWithName(Node node, String name) {
 		/*
@@ -31,6 +44,39 @@ class Fetcher {
 		
 		//If no child was returned, return null.
 		return null;
+	}
+	
+	private static class simpleNodeList implements NodeList {
+		private Node[] nodes;
+		
+		public simpleNodeList(Node[] nodes) {
+			this.nodes = nodes;
+		}
+		
+		public int getLength() {
+			return nodes.length;
+		}
+		
+		public Node item(int i) {
+			return nodes[i];
+		}
+	}
+	
+	private static NodeList getChildrenWithName(Node node, String name) {
+		/*
+		 * Given an xml element (node), and a node name
+		 * (name), return a NodeList of all the children of
+		 * (node) with name (name).
+		 */
+		
+		NodeList children = node.getChildNodes();
+		ArrayList filteredChildren = new ArrayList();
+		for (int i = 0; i < children.getLength(); i += 1) {
+			if (children.item(i).getNodeName() == name) {
+				filteredChildren.add(children.item(i));
+			}
+		}
+		return new simpleNodeList((Node[])filteredChildren.toArray());
 	}
 	
 	private static Document XMLRequest(String url) {
@@ -57,7 +103,7 @@ class Fetcher {
 		return null;
 	}
 	
-	private static String[] getRandomTitles(int n, int namespace) {
+	private static String[] getRandomTitles(int n, int namespace, AnonymousFunction filter) {
 		/*
 		 * Given a number (n) of random ids to fetch,
 		 * get (n) ids corresponding to real Wikipedia
@@ -65,33 +111,45 @@ class Fetcher {
 		 */
 		
 		try {
-			String[] titles = {};
-
-			//Make a request to Wikipedia's API for a list of random pages in XML:
-			Document list = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"+
-									   "action=query&list=random&" +
-									   "rnnamespace=" + namespace + "&" +
-									   "rnlimit=" + n);
-			
-			//Get all the pages in a NodeList:
-			NodeList pages = list.getElementsByTagName("page");
-			
-			//For each page, get its id and save it in "ids":
-			titles = new String[pages.getLength()];
-			for (int i = 0; i < pages.getLength(); i += 1) {
-				titles[i] = pages.item(i).getAttributes().getNamedItem("title").getNodeValue();
+			ArrayList titles = new ArrayList();
+			for (int i = 0; i <= n/20; i += 1) {
+				//Make a request to Wikipedia's API for a list of random pages in XML:
+				Document list = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"+
+										   "action=query&list=random&" +
+										   "rnnamespace=" + namespace + "&" +
+										   "rnlimit=" + ((i + 1) * 20  < n ? 20 : n % 20));
+				
+				//Get all the pages in a NodeList:
+				NodeList pages = list.getElementsByTagName("page");
+				
+				//For each page, get its id and save it in "ids":
+				for (int x = 0; x < pages.getLength(); x += 1) {
+					titles.add(pages.item(i).getAttributes().getNamedItem("title").getNodeValue());
+				}
 			}
-			return titles;
+			
+			//Run our filter over titles and convert to an array, then return.
+			return (String[])((ArrayList)filter.call(titles)).toArray();
 		}
 		catch (Exception e) {
 			//Debugging
 			System.out.println("Exception in getRandomIDs:" + e.getMessage());
 		}
+		
 		//If exception was thrown, return null.
 		return null;
 	}
 	
-	private static String[] getPageTexts(String[] titles, int revs) {
+	
+	private static String[] getRandomTitles(int n, int namespace) {
+		return getRandomTitles(n, namespace, new AnonymousFunction() {
+			public Object call(Object... args) {
+				return args[0];
+			}
+		});
+	}
+	
+	private static String[][] getPageRevisions(String[] titles, int revs, AnonymousFunction filter) {
 		/*
 		 * Given an array of page ids (ids),
 		 * gets the texts of those pages.
@@ -99,7 +157,7 @@ class Fetcher {
 		
 		try {
 			String[] blocksOfFifty = new String[titles.length/50 + (titles.length % 50 == 0 ? 0 : 1)];
-			String[] pageTexts = new String[titles.length];
+			ArrayList pageTexts = new ArrayList();
 			
 			//Separate the page ids into blocks of fifty.
 			for (int i = 0; i < titles.length; i += 1) {
@@ -113,8 +171,7 @@ class Fetcher {
 				blocksOfFifty[i/50] += titles[i];
 			}
 			
-			//Get the content of each page. First, we make a marker
-
+			//Get the content of each page.
 			for (int i = 0; i < blocksOfFifty.length; i += 1) {
 				//Make the request for fifty pages and parse:
 				Document xml = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&" +
@@ -126,19 +183,24 @@ class Fetcher {
 				NodeList pages = xml.getElementsByTagName("page");
 				
 				//Now that we've got our pages, get the content of each one.
-				for (int x = 0; x < pages.getLength(); x++) {
+				for (int x = 0; x < pages.getLength(); x += 1) {
 					//Search the pages' child nodes for a node named "revisions"
 					Node revisions = getFirstChildWithName(pages.item(x), "revisions");
 					
 					//Search that child node for a node named "rev"
-					Node rev = getFirstChildWithName(revisions, "rev");
+					NodeList revElements = getChildrenWithName(revisions, "rev");
+					ArrayList revTexts = new ArrayList();
 					
-					//Put the content of that node into pageTexts.
-					pageTexts[i*50 + x] = rev.getChildNodes().item(0).getNodeValue();
+					for (int z = 0; z < revElements.getLength(); z += 1) {
+						revTexts.add(revElements.item(z).getChildNodes().item(0).getNodeValue());
+					}
+					
+					pageTexts.add(revTexts.toArray());
 				}
 			}
 			
-			return pageTexts;
+			//Run our filter over pageTexts and convert it to an array, then return.
+			return (String[][])((ArrayList)filter.call(pageTexts)).toArray();
 		}
 		catch (Exception e) {
 			System.out.println("Exception in getPageTexts:" + e);
@@ -148,8 +210,64 @@ class Fetcher {
 		return null;
 	}
 	
-	public static String[] getRandomPageTexts(int n, int namespace, int revs) {
-		return getPageTexts(getRandomTitles(n, namespace), revs);
+	private static String[][] getPageRevisions(String[] titles, int revs) {
+		return getPageRevisions(titles, revs, AnonymousFunction.ECHOER);
 	}
 	
+	public static String[] getPageTexts(String[] titles, AnonymousFunction filter) {
+		String[][] packed = getPageRevisions(titles,1,filter);
+		String[] result = new String[packed.length];
+		for (int i = 0; i < packed.length; i += 1) {
+			result[i] = packed[i][0];
+		}
+		return result;
+	}
+	
+	public static String[][] getRandomPageRevisions(int n, int namespace, int revs, AnonymousFunction titleFilter, AnonymousFunction textFilter) {
+		return getPageRevisions(getRandomTitles(n, namespace, titleFilter), revs, textFilter);
+	}
+	
+	public static String[][] getRandomPageRevisions(int n, int namespace, int revs) {
+		return getPageRevisions(getRandomTitles(n, namespace), revs);
+	}
+	
+	private static String[][] getRandomArticleWithTalkQualification(int n, int revs, final AnonymousFunction qualifier) {
+		/*
+		 * Given an int (n), a number of revisions (revs),
+		 * and a qualification AnonymousFunction (qualifier) that accepts
+		 * a string and returns a boolean, makes requests for (rev)
+		 * revisions of (n) pages, and returns only those whose talk pages
+		 * fit (qualifier).
+		 */
+
+		
+		AnonymousFunction titleFilter = new AnonymousFunction() {
+			public Object call(Object... args) {
+				//Clone the first argument to avoid namespace clashes,
+				//and call it "titles" to be convenient.
+				ArrayList titles = (ArrayList)args[0].clone();
+				
+				String[] talkTitles = new String[titles.size()];
+				
+				//Get the talk page titles for each title.
+				for (int i = 0; i < titles.size(); i += 1) {
+					talkTitles[i] = "Talk:" + titles.get(i);
+				}
+				
+				//Get the texts of the talk pages.
+				String[] talkPages = getPageTexts(talkTitles, AnonymousFunction.ECHOER);
+				
+				//Remove the titles for all the articles that are not good.
+				for (int i = 0; i < talkPages.length; i += 1) {
+					if (!(Boolean)qualifier.call(talkPages[i])) {
+						titles.remove(i);
+					}
+				}
+				
+				return titles;
+			}
+		};
+		
+		return getRandomPageRevisions(n, 0, revs, titleFilter, AnonymousFunction.ECHOER);
+	}
 }

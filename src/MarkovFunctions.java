@@ -47,6 +47,15 @@ class MarkovFunctions {
 		return tableToReturn;
 	}
 
+	public static Hashtable averageHashtables(Hashtable a, Hashtable b) {
+		String[] keys = (String[])a.keySet().toArray();
+		Hasthable result = new Hashtable();
+		for (int i = 0; i < keys.length; i += 1) {
+			result.put(keys[i], ((Integer)a[keys[i]] + (Integer)b[keys[i]]) / 2.0);
+		}
+		return result;
+	}
+	
 	public static Hashtable logarithmicScaleToOne(Hashtable a) {
 		/*
 		 * Given a hashtable (a), return a hashtable

@@ -1,45 +1,78 @@
+import java.io.*;
 import java.util.*;
 class Master {
 	public static void main(String[] args) {
-		// get parsed xml into pages
-		String[] pages = Fetcher.getRandomPageTexts(30,0,1);
-		//declare variable words
-		ArrayList words = new ArrayList(pages.length);
-		//Split the pages into tokens.
-		for (int i=0;i<pages.length;i++){
-			words.add(Tokenizer.fullTokenization(pages[i], 3000));
-		}
-		//concatenate the pages
-		ArrayList firstHalf = new ArrayList(words.size()/2);
-		for (int i=0;i<words.size()/2;i++){
-			for (int k=0;k<((ArrayList)words.get(i)).size();k++){
-				firstHalf.add(((String[])words.get(i))[k]);
+		/*
+		 * Does the entire analysis sequence.
+		 * Requires (0) number of articles to fetch,
+		 * (1) alphabet size, (2) target path for occurrence counts,
+		 * and (3) target path for bigram counts.
+		 */
+		
+		final int NUMBER_OF_ARTICLES = Integer.parseInt(args[0]);
+		final int ALPHABET_SIZE = Integer.parseInt(args[1]);
+		final String OCCURRENCE_TARGET_PATH = args[2];
+		final String BIGRAM_TARGET_PATH = args[3];
+		
+		//Fetch random pages and parse:
+		String[] pages = Fetcher.getRandomPageTexts(NUMBER_OF_ARTICLES,0,1);
+
+		//Set up a place to put all our tokens:
+		ArrayList concatenatedTokenArrayList = new ArrayList();
+		
+		//Add each token in order to it, placing <EOF> and <BOF> between each file.
+		for (int i = 0; i < pages.length; i += 1) {
+			String[] tokens = Tokenizer.tokenize(pages[i]);
+			for (int x = 0; x < tokens.length; x += 1) {
+				concatenatedTokenArrayList.add(tokens[i]);
 			}
 		}
-		ArrayList secondHalf = new ArrayList(words.size()/2);
-		for (int i=words.size()/2;i<words.size();i++){
-			for (int k=0;k<((ArrayList) words.get(i)).size();k++){
-				secondHalf.add(((String[])words.get(i))[k]);
+		
+		//Convert the ArrayList into an Array:
+		String[] concatenatedTokens = concatenatedTokenArrayList.toArray();
+		
+		//Split the tokens into front and back halves:
+		String[] frontHalf = new String[concatenatedTokens.length/2];
+		String[] backHalf = new String[concatenatedTokens.length/2 + (concatenatedTokens % 2 == 0 ? 0 : 1)];
+		for (int i = 0; i < concatenatedTokens.length; i += 1) {
+			if (i < concatenatedTokens.length/2) {
+				frontHalf[i] = concatenatedTokens[i];
+			}
+			else {
+				backHalf[i - concatenatedTokens/2] = concatenatedTokens[i];
 			}
 		}
-		Hashtable[] firstCountResult=Counter.count((String[])firstHalf.toArray());
-		Hashtable[] secondCountResult=Counter.count((String[])secondHalf.toArray());
-		Hashtable smootherResult = new Hashtable();
-		String[] firstKeys=(String[]) firstCountResult[1].keySet().toArray();
-		Hashtable occurence = Smoother.heldOutSmoothingScaledLogarithmic(
-				firstCountResult[0],
-				secondCountResult[0],
-				3000);
-		Hashtable transition = new Hashtable();
-		for (int i = 0;i<firstKeys.length;i++){
-			transition.put(
-					firstKeys[i],
-					Smoother.heldOutSmoothingScaledLogarithmic(
-							(Hashtable)firstCountResult[1].get(firstKeys[i]),
-							(Hashtable)secondCountResult[1].get(firstKeys[i]), 
-							3000
+		
+		//Count bigrams and occurrences in the front half.
+		Hashtable[] frontHalfCountsPacked = Counter.count(frontHalf);
+		Hashtable frontHalfOccurrence = frontHalfCountsPacked[0];
+		Hashtable frontHalfBigrams = frontHalfCountsPacked[1];
+		
+		//Count bigrams and occurrences in the back half.
+		Hashtable[] backHalfCountsPacked = Counter.count(backHalf);
+		backHalfOccurrence = backHalfCountsPacked[0];
+		backHalfBigrams = backHalfCountsPacked[1];
+		
+		//Smooth the occurence counts.
+		Hashtable smoothedCounts = Smoother.fullCrossSmoothing(frontHalfCounts, backHalfCounts, alphabet.length);
+		
+		//Smooth the bigram counts.
+		Hashtable smoothedBigrams = new Hashtable();
+		for (int i = 0; i < alphabet.length; i += 1) {
+			smoothedBigrams.put(
+					alphabet[i],
+					Smoother.fullCrossSmoothing(
+							(Hashtable)frontHalfBigrams.get(alphabet[i]),
+							(Hashtable)backHalfBigrams.get(alphabet[i]),
+							alphabet.length
 					)
 			);
 		}
+		
+		FileWriter occurrenceFileWriter = new FileWriter(OCCURRENCE_TARGET_PATH);
+		FileWriter bigramsFileWriter = new FileWriter(BIGRAMS_TARGET_PATH);
+		
+		occurrenceFileWriter.write(JSONSerializer.serialize(smoothedCounts));
+		bigramsFileWriter.write(JSONSerializer.serialize(smoothedBigrams));
 	}
 }

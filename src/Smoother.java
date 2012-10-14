@@ -67,12 +67,16 @@ class Smoother {
 		return finalSmoothedCounts;
 	}
 	
-	public static Hashtable heldOutSmoothingScaledLogarithmic(Hashtable training, Hashtable held, int alphabetSize) {
+	public static Hashtable fullSmoothing(Hashtable training, Hashtable held, int alphabetSize) {
 		/*
 		 * Perform held out smoothing on a data set,
 		 * and also scale to one.
 		 */
 		
-		return MarkovFunctions.logarithmicScaleToOne(heldOutSmoothing(training, held, alphabetSize));
+		return heldOutSmoothing(training, held, alphabetSize);
+	}
+	
+	public static Hashtable fullCrossSmoothing(Hashtable a, Hashtable b, Hashtable alphabetSize) {
+		return MarkovFunctions.averageHashtables(fullSmoothing(a, b, alphabetSize),fullSmoothing(b, a, alphabetSize));
 	}
 }
