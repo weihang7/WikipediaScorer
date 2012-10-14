@@ -70,7 +70,7 @@ class Master {
 		}
 		
 		FileWriter occurrenceFileWriter = new FileWriter(OCCURRENCE_TARGET_PATH);
-		FileWriter bigramsFileWriter = new FileWriter(BIGRAMS_TARGET_PATH);
+		FileWriter bigramsFileWriter = new FileWriter(BIGRAM_TARGET_PATH);
 		
 		occurrenceFileWriter.write(JSON.serialize(smoothedCounts));
 		bigramsFileWriter.write(JSON.serialize(smoothedBigrams));
