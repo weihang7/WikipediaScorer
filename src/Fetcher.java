@@ -183,12 +183,6 @@ class Fetcher {
 						+ "action=query&prop=revisions&rvprop=content&"
 						+ "titles="
 						+ URLEncoder.encode(blocksOfFifty[i],"UTF-8"));
-				
-				System.out.println("http://en.wikipedia.org/w/api.php?format=xml&"
-						+ "action=query&prop=revisions&rvprop=content&"
-						+ "titles="
-						+ URLEncoder.encode(blocksOfFifty[i],"UTF-8"));
-				
 				// Extract the pages from the response:
 				NodeList pages = xml.getElementsByTagName("page");
 				
