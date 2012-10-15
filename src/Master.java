@@ -1,4 +1,4 @@
-import java.io.*;
+//author: Anthony Bau, Weihang Fan
 import java.util.*;
 class Master {
 	public static void main(String[] args) {
@@ -90,20 +90,8 @@ class Master {
 			);
 		}
 		
-		try {
-			FileWriter occurrenceFileWriter = new FileWriter(OCCURRENCE_TARGET_PATH);
-			FileWriter bigramsFileWriter = new FileWriter(BIGRAM_TARGET_PATH);
-			BufferedWriter occurrenceBufferedWriter = new BufferedWriter(occurrenceFileWriter);
-			BufferedWriter bigramsBufferedWriter = new BufferedWriter(bigramsFileWriter);
-			
-			occurrenceBufferedWriter.write(JSON.serialize(smoothedCounts));
-			bigramsBufferedWriter.write(JSON.serialize(smoothedBigrams));
-		
-			occurrenceBufferedWriter.close();
-			bigramsBufferedWriter.close();
-		}
-		catch (Exception e) {
-			System.out.println("IO Error:" + e.getMessage());
-		}
+		//Serialize and write the counts to json files
+		ReadandWrite.writeString(JSON.serialize(smoothedCounts), OCCURRENCE_TARGET_PATH);
+		ReadandWrite.writeString(JSON.serialize(smoothedBigrams), BIGRAM_TARGET_PATH);
 	}
 }

@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
+import java.util.Hashtable;
 
 public class wikiGUI
 {
@@ -12,6 +13,7 @@ public class wikiGUI
     private File fileInUse;
     private JLabel fileNameLabel;
     private String textInUse;
+    private double score;
     
     public void createGUI()
     {
@@ -50,7 +52,7 @@ public class wikiGUI
      		fileNameLabel.setText(fileInUse.getName());
      		fileNameLabel.setVisible(true);
     		String ret = "";
-    		ret=ReadFromFile.readFromDoc(fileInUse);
+    		ret=ReadandWrite.readFromDoc(fileInUse);
     		textInUse=ret;
         }
     }
@@ -58,7 +60,12 @@ public class wikiGUI
     	public void actionPerformed(ActionEvent e){
     		if (textInUse==null)
     			textInUse=textInput.getText();
+    		String[] tokenizedText = Tokenizer.tokenize(textInUse);
+    		tokenizedText = Tokenizer.stripTokens(tokenizedText, Tokenizer.getAlphabet(tokenizedText, 1000));
     		//TODO add scoring function
+    		Hashtable randomArticles = Fetcher.getRandomPageTexts(50, 0);
+    		Hashtable goodArticles = Fetcher.extractGoodArticles(randomArticles);
+    		score = Scorer.score(, acceptable, all, acceptableProb)
     	}
     }
     private JPanel makeInputPanel()

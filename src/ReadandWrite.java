@@ -1,30 +1,35 @@
+//Author : Weihang Fan
 import java.io.*;
 
 import javax.swing.JOptionPane;
 
 import org.apache.poi.hwpf.extractor.*;
 import org.apache.poi.hwpf.*;
-//import needed functions
-public class ReadFromFile {
+//Import needed functions
+public class ReadandWrite {
 	public static String readFromDoc(File docfile){
-		//establishing the receptors of the FileInputStream
-		WordExtractor extractor = null;
+		
+		//Establishing the things to receive data from the FileInputStream
 		String ret = "";
+		
 		try {
-			//create a FileInputStream that links the document and the extractor
+			//Create a FileInputStream that links the HWPFDocument and a WordExtractor
 			FileInputStream fis=new FileInputStream(docfile);
 			HWPFDocument document=new HWPFDocument(fis);
-			extractor = new WordExtractor(document);
-			//extract the text
+			WordExtractor extractor = new WordExtractor(document);
+			
+			//Extract the text
 			ret=extractor.getText();
 		}
-		// catch exceptions
 		catch(Exception exep){
+			// Catch exceptions
 			JOptionPane.showMessageDialog(null,"docLoadingException");
 		}
+		
 		return ret;
 	}
-	//reading from a txt file
+	
+	//Reading from a text file
 	public static String readFromTxt(File txtfile){
 		String text="";
 		try {
@@ -39,5 +44,17 @@ public class ReadFromFile {
 			 ex.printStackTrace();
 		 }
 		 return text;
+	}
+	
+	public static void writeString(String stringToWrite, String path){
+		try{
+			FileWriter fr = new FileWriter(path);
+			BufferedWriter br = new BufferedWriter(fr);
+			br.write(stringToWrite);
+			br.close();
+		}
+		catch(Exception ex){
+			ex.printStackTrace();
+		}
 	}
 }
