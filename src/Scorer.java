@@ -9,6 +9,7 @@ class Scorer {
 		 * probability that any given Wikipedia entry is acceptable,
 		 * return the probability that the input belongs in the "acceptable" category.
 		 */
+		
 		//Initiate all our Markov models to begin at the first token:
 		Hashtable lastAcceptableHash = (Hashtable)acceptable[1].get(input[0]);
 		Hashtable lastAllHash = (Hashtable)all[1].get(input[0]);

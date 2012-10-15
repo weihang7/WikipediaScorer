@@ -63,6 +63,13 @@ class Smoother {
 		//Save this number:
 		finalSmoothedCounts.put("__UNSEEN__",totalUnseen/numberUnseen);
 		
+		String[] keys = (String[]) finalSmoothedCounts.keySet().toArray(new String[finalSmoothedCounts.keySet().size()]);
+		for (int i = 0; i < keys.length; i += 1) {
+			if ((Double) finalSmoothedCounts.get(keys[i]) < 0) {
+				System.out.println(keys[i]);
+			}
+		}
+		
 		return finalSmoothedCounts;
 	}
 	
