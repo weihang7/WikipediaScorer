@@ -1,3 +1,4 @@
+//author:Anthony Bau
 import java.util.*;
 
 class Smoother {

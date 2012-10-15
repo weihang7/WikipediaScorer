@@ -1,3 +1,4 @@
+//author : Anthony Bau
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -36,6 +37,7 @@ class Fetcher {
 
 		// Get the children of node:
 		NodeList children = node.getChildNodes();
+		
 		for (int i = 0; i < children.getLength(); i += 1) {
 			if (children.item(i).getNodeName() == name) {
 				// For each child, if the child has the desired name,
@@ -181,8 +183,7 @@ class Fetcher {
 				Document xml = XMLRequest("http://en.wikipedia.org/w/api.php?format=xml&"
 						+ "action=query&prop=revisions&rvprop=content&"
 						+ "titles="
-						+ URLEncoder.encode(blocksOfFifty[i]));
-				
+						+ URLEncoder.encode(blocksOfFifty[i],"UTF-8"));
 				// Extract the pages from the response:
 				NodeList pages = xml.getElementsByTagName("page");
 				
@@ -215,7 +216,7 @@ class Fetcher {
 			// return.
 			return pageTexts;
 		} catch (Exception e) {
-			e.printStackTrace(System.out);
+			e.printStackTrace();
 		}
 
 		// If exception was thrown, return null.
