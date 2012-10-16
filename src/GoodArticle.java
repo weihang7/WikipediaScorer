@@ -1,3 +1,7 @@
+/*
+ * @author Weihang Fan
+ */
+
 public class GoodArticle {
 	public static String getTalkPage(String title){
 		return "Talk:"+title;

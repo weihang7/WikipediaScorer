@@ -1,3 +1,7 @@
+/*
+ * @author David Anthony Bau
+ */
+
 import info.bliki.wiki.filter.*;
 import info.bliki.wiki.model.*;
 import java.util.*;

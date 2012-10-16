@@ -1,3 +1,7 @@
+/*
+ * @author Weihang Fan
+ */
+
 import java.util.*;
 public class JSON {
 	public static String serialize(Hashtable table){

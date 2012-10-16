@@ -1,3 +1,7 @@
+/*
+ * @author David Anthony Bau
+ */
+
 import java.util.*;
 
 class Counter {

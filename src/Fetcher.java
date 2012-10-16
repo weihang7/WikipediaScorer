@@ -1,4 +1,7 @@
-//author : Anthony Bau
+/*
+ * @author David Anthony Bau
+ */
+
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;

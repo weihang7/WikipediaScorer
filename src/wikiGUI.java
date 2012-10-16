@@ -1,3 +1,8 @@
+/*
+ * @author Raghav Bhat
+ * @author Weihang Fan
+ */
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;

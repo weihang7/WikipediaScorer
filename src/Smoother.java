@@ -1,4 +1,6 @@
-//author:Anthony Bau
+/*
+ * @author David Anthony Bau
+ */
 import java.util.*;
 
 class Smoother {

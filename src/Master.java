@@ -1,5 +1,8 @@
-//author: Anthony Bau, Weihang Fan
-import java.util.*;
+/*
+ * @author Weihang Fan
+ * @author David Anthony Bau
+ */
+
 class Master {
 	public static Hashtable fullAnalysis(String[] concatenatedTokens, String[] alphabet)
 	{

@@ -1,4 +1,6 @@
-//Author : Weihang Fan
+/*
+ * @author Weihang Fan
+ */
 import java.io.*;
 
 import javax.swing.JOptionPane;
