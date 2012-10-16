@@ -1,7 +1,7 @@
 //author: Anthony Bau, Weihang Fan
 import java.util.*;
 class Master {
-	public static Hashtable[] fullAnalysis(String[] concatenatedTokens, String[] alphabet)
+	public static Hashtable fullAnalysis(String[] concatenatedTokens, String[] alphabet)
 	{
 		/*
 		 * Does the entire analysis sequence.
@@ -48,14 +48,18 @@ class Master {
 			);
 		}
 		
-		Hashtable[] result = {smoothedCounts,smoothedBigrams};
+		//Put our results into one Hashtable with keys "occurrence" and "bigrams."
+		Hashtable result =  new Hashtable();
+		result.put("occurrence", smoothedCounts);
+		result.put("bigrams", smoothedCounts);
+		
 		return result;
 	}
 	public static void main(String[] args) {
 		final int NUMBER_OF_ARTICLES = Integer.parseInt(args[0]);
 		final int ALPHABET_SIZE = Integer.parseInt(args[1]);
-		final String OCCURRENCE_TARGET_PATH = args[2];
-		final String BIGRAM_TARGET_PATH = args[3];
+		final String ALL_TARGET_PATH = args[2];
+		final String GOOD_TARGET_PATH = args[3];
 		
 		//Fetch random pages and parse:
 		Hashtable pageHashtable = Fetcher.getRandomPageTexts(NUMBER_OF_ARTICLES,0);
@@ -92,11 +96,11 @@ class Master {
 		}
 		
 		//Convert the ArrayLists into an arrays:
-		String[] concatenatedTokens = (String[]) concatenatedTokenArrayList.toArray(new String[concatenatedTokenArrayList.size()]);
+		String[] concatenatedPages = (String[]) concatenatedTokenArrayList.toArray(new String[concatenatedTokenArrayList.size()]);
 		String[] concatenatedGoodArticles = (String[]) concatenatedGoodArticleArrayList.toArray(new String[concatenatedGoodArticleArrayList.size()]);
 		
 		//Get an alphabet from our tokens:
-		String[] uncutAlphabet = Tokenizer.getAlphabet(concatenatedTokens, ALPHABET_SIZE);
+		String[] uncutAlphabet = Tokenizer.getAlphabet(concatenatedPages, ALPHABET_SIZE);
 		
 		//If we didn't fill the alphabet, shorten it:
 		String[] alphabet = new String[uncutAlphabet.length];
@@ -114,19 +118,14 @@ class Master {
 			alphabet[i] = uncutAlphabet[i];
 		}
 
-		//Run the full analysis sequence on all our pages, and unpack:
-		Hashtable[] pagesPackedResult = fullAnalysis(concatenatedPages, alphabet);
-		Hashtable pagesOccurrence = pagesPackedResult[0];
-		Hashtable pagesBigrams = pagesPackedResult[1];
+		//Run the full analysis sequence on all our pages:
+		Hashtable pagesResult = fullAnalysis(concatenatedPages, alphabet);
 		
 		//Do the same same with only good articles:
-		Hashtable[] goodArticlesPackedResult = fullAnalysis(concatenatedGoodArticles, alphabet);
-		Hashtable goodArticlesOccurrence = goodArticlesPackedResult[0];
-		Hashtable goodArticlesBigrams = goodArticlesPackedResult[1];
-		
+		Hashtable goodArticlesResult = fullAnalysis(concatenatedGoodArticles, alphabet);
 		
 		//Serialize and write the counts to json files
-		ReadandWrite.writeString(JSON.serialize(smoothedCounts), OCCURRENCE_TARGET_PATH);
-		ReadandWrite.writeString(JSON.serialize(smoothedBigrams), BIGRAM_TARGET_PATH);
+		ReadandWrite.writeString(JSON.serialize(pagesResult), ALL_TARGET_PATH);
+		ReadandWrite.writeString(JSON.serialize(goodArticlesResult), GOOD_TARGET_PATH);
 	}
 }

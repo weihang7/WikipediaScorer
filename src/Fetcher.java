@@ -278,7 +278,7 @@ class Fetcher {
 		 */
 		
 		Hashtable articlesClone = (Hashtable) articles.clone();
-		String[] titles = (String[]) articles.keySet().toArray();
+		String[] titles = (String[]) articles.keySet().toArray(new String[articles.keySet().size()]);
 		String[] talkTitles = new String[titles.length];
 		
 		//Get the talk page titles for each title.
@@ -302,7 +302,7 @@ class Fetcher {
 	public static Hashtable extractGoodArticles(Hashtable articles) {
 		return extractArticlesWithTalkQualification(articles, new AnonymousFunction() {
 			public Object call(Object... args) {
-				return GoodArticle.isGood((String) args[0]);
+				return ((String) args[0]).contains("currentstatus=GA");
 			}
 		});
 	}

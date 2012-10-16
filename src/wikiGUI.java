@@ -65,7 +65,7 @@ public class wikiGUI
     		//TODO add scoring function
     		Hashtable randomArticles = Fetcher.getRandomPageTexts(50, 0);
     		Hashtable goodArticles = Fetcher.extractGoodArticles(randomArticles);
-    		score = Scorer.score(, acceptable, all, acceptableProb)
+    		score = Scorer.score(tokenizedText, randomArticles, goodArticles, 0.5);
     	}
     }
     private JPanel makeInputPanel()
