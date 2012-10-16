@@ -67,10 +67,9 @@ public class wikiGUI
     			textInUse=textInput.getText();
     		String[] tokenizedText = Tokenizer.tokenize(textInUse);
     		tokenizedText = Tokenizer.stripTokens(tokenizedText, Tokenizer.getAlphabet(tokenizedText, 1000));
-    		//TODO add scoring function
-    		Hashtable randomArticles = Fetcher.getRandomPageTexts(50, 0);
+    		Hashtable randomArticles = JSON.parse(ReadandWrite.readFromTxt(new File("data/bigrams.json")));
     		Hashtable goodArticles = Fetcher.extractGoodArticles(randomArticles);
-    		score = Scorer.score(tokenizedText, randomArticles, goodArticles, 0.5);
+    		score = Scorer.score(tokenizedText, randomArticles, goodArticles, (Double) randomArticles.get("num") / (Double) goodArticles.get("num"));
     	}
     }
     private JPanel makeInputPanel()
@@ -136,7 +135,7 @@ public class wikiGUI
     public static void main( String[] args )
     {
     	if (!new File("data").exists()){
-    		Master.main(new String[]{"100","1000","data/Occurrence.json","data/Bigrams.json"});
+    		Master.main(new String[]{"100","1000","data/occurrence.json","data/bigrams.json"});
     	}
         wikiGUI app = new wikiGUI();
         app.createGUI();
