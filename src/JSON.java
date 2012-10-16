@@ -12,20 +12,7 @@ public class JSON {
 		String[] keySet = Arrays.asList(objectKeySet).toArray(new String[objectKeySet.length]);
 		// if it is a hashtable within a hashtable, read table's component Hashtables.
 		if (table.get(keySet[0]) instanceof Hashtable){
-			for (int i = 0; i < table.size();i++){
-				Hashtable currentElement = (Hashtable) table.get(keySet[i]);
-				Object[] currentObjectArray = currentElement.keySet().toArray();
-				String[] currentKeySet = Arrays.asList(currentObjectArray).toArray(
-						new String[currentObjectArray.length]);
-				ret+="\""+keySet[i]+"\""+":{";
-				for (int k=0;k<currentElement.size();k++){
-					ret+="\""+currentKeySet[k]+"\""+":"+currentElement.get(currentKeySet[k])+
-							(k == currentKeySet.length - 1 ? "" : ",");
-				}
-				// add comma if it is not the final key-value pair
-				ret+="}" + (i == keySet.length - 1 ? "" : ",");
-			}
-			ret+="}";
+			ret+=serialize((Hashtable) table.get(keySet[0]));
 		}
 		else{
 			for (int k=0;k<keySet.length-1;k++){
