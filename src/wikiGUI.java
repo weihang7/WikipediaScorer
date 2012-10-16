@@ -135,6 +135,9 @@ public class wikiGUI
 
     public static void main( String[] args )
     {
+    	if (!new File("data").exists()){
+    		Master.main(new String[]{"100","1000","data/Occurrence.json","data/Bigrams.json"});
+    	}
         wikiGUI app = new wikiGUI();
         app.createGUI();
     }
