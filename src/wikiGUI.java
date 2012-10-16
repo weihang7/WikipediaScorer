@@ -48,17 +48,33 @@ public class wikiGUI
     }
     class FileListener implements ActionListener{
         public void actionPerformed(ActionEvent e){
+        	
             //Create a file chooser
             JFileChooser choose = new JFileChooser();
+            
             choose.showOpenDialog(null);
             //open the file.
      		fileInUse = choose.getSelectedFile();
-     		ioButton.setVisible(false);
-     		fileNameLabel.setText(fileInUse.getName());
-     		fileNameLabel.setVisible(true);
-    		String ret = "";
-    		ret=ReadandWrite.readFromDoc(fileInUse);
-    		textInUse=ret;
+     		if (fileInUse!=null){
+     			String name = fileInUse.getName();
+	     		ioButton.setVisible(false);
+	     		fileNameLabel.setText(name);
+	     		fileNameLabel.setVisible(true);
+	     		
+	     		//Finds the extension of the file.
+	     		int pos = name.lastIndexOf('.');
+	     		String ext = name.substring(pos+1);
+	     		
+	     		// Determines which function to use based on extension.
+	     		switch (ext){
+	     			case "doc":  textInUse = ReadandWrite.readFromDoc(fileInUse);
+	     				break;
+	     			case "docx":	textInUse = ReadandWrite.readFromDocx(fileInUse);
+	     				break;
+	     			default:	textInUse = ReadandWrite.readFromTxt(fileInUse);
+	     				break;
+	     		}
+     		}
         }
     }
     class calcListener implements ActionListener{

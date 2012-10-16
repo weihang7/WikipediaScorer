@@ -51,7 +51,7 @@ public class ReadandWrite {
 		}
 		catch(Exception exep){
 			// Catch exceptions
-			JOptionPane.showMessageDialog(null,"docLoadingException");
+			JOptionPane.showMessageDialog(null,"docxLoadingException");
 		}
 		
 		return ret;
