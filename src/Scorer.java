@@ -1,11 +1,12 @@
 /*
  * @author David Anthony Bau
+   @author Weihang Fan
  */
 
 import java.util.*;
 
 class Scorer {
-	public static double score(String[] input, Hashtable acceptable, Hashtable all, double acceptableProb) {
+	public static double score(String[] input, Hashtable<String,Hashtable<String,Double>> acceptableBigrams, Hashtable<String,Hashtable<String,Double>> allBigrams, Hashtable<String,Double> acceptableOccurrence, Hashtable<String,Double> allOccurrence, double acceptableProb) {
 		/*
 		 * Given an input (input), a pair of hashtables for the markov model
 		 * of all acceptable Wikipedia entries, and a pair of hashtables for the
@@ -14,47 +15,42 @@ class Scorer {
 		 * return the probability that the input belongs in the "acceptable" category.
 		 */
 		
-		//Unpack the Hashtables:
-		Hashtable acceptableBigrams = (Hashtable)acceptable.get("bigrams");
-		Hashtable acceptableOccurrence = (Hashtable)acceptable.get("occurrence");
-		Hashtable allBigrams = (Hashtable)all.get("bigrams");
-		Hashtable allOccurrence = (Hashtable)all.get("occurrence");
-		
 		//Initiate all our Markov models to begin at the first token:
-		Hashtable lastAcceptableHash = (Hashtable)acceptableBigrams.get(input[0]);
-		Hashtable lastAllHash = (Hashtable)allBigrams.get(input[0]);
+		Hashtable<String,Double> lastAcceptableHash = acceptableBigrams.get(input[0]);
+		Hashtable<String,Double> lastAllHash = allBigrams.get(input[0]);
 		
 		//Initiate our probability as the occurrence probability of the first token times
 		//the overall probability of acceptability.
-		Double probability = (Double)acceptableBigrams.get(input[0])
-				- (Double)allOccurrence.get(input[0])
+		Double probability = acceptableOccurrence.get(input[0])
+				- allOccurrence.get(input[0])
 				+ acceptableProb;
 		
 		for (int i = 1; i < input.length; i += 1) {
 			//Per token, get our estimate of the probability that an acceptable
 			//document has this token and multiply:
 			if (lastAcceptableHash.containsKey(input[i])) {
-				probability  += (Double)lastAcceptableHash.get(input[i]);
+				probability  += lastAcceptableHash.get(input[i]);
 			}
 			else {
-				probability += (Double)lastAcceptableHash.get("__UNSEEN__");
+				probability += lastAcceptableHash.get("__UNSEEN__");
 			}
 			
 			//Similarly, get our estimate of the probability that any document
 			//has this token and divide:
 			if (lastAllHash.containsKey(input[i])) {
-				probability -= (Double)lastAllHash.get(input[i]);
+				probability -= lastAllHash.get(input[i]);
 			}
 			else {
-				probability -= (Double)lastAllHash.get("__UNSEEN__");
+				probability -= lastAllHash.get("__UNSEEN__");
 			}
 			
 			//Update lastAcceptableHash and lastAllHash to move along the Markov
 			//model.
-			lastAcceptableHash = (Hashtable)acceptableBigrams.get(input[i]);
-			lastAllHash = (Hashtable)allBigrams.get(input[i]);
+			lastAcceptableHash = acceptableBigrams.get(input[i]);
+			lastAllHash = allBigrams.get(input[i]);
 		}
-		
+		//Convert probability from ln(probability) back to normal
+		probability = Math.pow(probability, Math.E);
 		return probability;
 	}
 }

@@ -1,5 +1,4 @@
 /*
- * @author Weihang Fan
  * @author David Anthony Bau
  */
 import java.util.*;
