@@ -99,12 +99,4 @@ public class JSON {
 		}
 		return ret;
 	}
-	
-	public static Hashtable<String, Count> parseAll(String input) {
-		Hashtable global = parse(input);
-		Hashtable allHash = (Hashtable) global.get(all);
-		Count all = new Count((Integer) allHash.get("num"),
-				(Hashtable<String, Double>) allHash.get("occurs"),
-				(Hashtable<String, Hashtable<String, Double>>) allHash.get("bigrams"));
-	}
 }
