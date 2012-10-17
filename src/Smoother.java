@@ -48,6 +48,7 @@ class Smoother {
 		//Accomodate for unseen tokens.
 		double totalUnseen = 0.0;
 		int numberUnseen = alphabetSize - finalSmoothedCounts.size();
+		
 		for (int i = 0; i < heldKeys.length; i += 1) {
 			if (!finalSmoothedCounts.containsKey(heldKeys[i])) {
 				//For each token that was unseen in the training corpus,
@@ -55,14 +56,15 @@ class Smoother {
 				//to unseenCounts:
 				totalUnseen += (Double)held.get(heldKeys[i]);
 			}
-			
-			if (totalUnseen == 0.0) {
-				//If there were no unseen tokens seen in the held out
-				//corpus, accommodate anyway.
-				totalUnseen = 1.0;
-				numberUnseen = 1;
-			}
 		}
+		
+		if (totalUnseen == 0.0) {
+			//If there were no unseen tokens seen in the held out
+			//corpus, accommodate anyway.
+			totalUnseen = 1.0;
+			numberUnseen = 1;
+		}
+
 		//Save this number:
 		finalSmoothedCounts.put("__UNSEEN__",totalUnseen/numberUnseen);
 		

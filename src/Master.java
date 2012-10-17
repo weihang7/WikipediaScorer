@@ -34,7 +34,7 @@ class Master {
 		Hashtable[] backHalfCountsPacked = Counter.count(backHalf, alphabet);
 		Hashtable backHalfOccurrence = backHalfCountsPacked[0];
 		Hashtable backHalfBigrams = backHalfCountsPacked[1];
-		
+				
 		//Smooth the occurrence counts.
 		Hashtable smoothedCounts = Smoother.fullCrossSmoothing(frontHalfOccurrence, backHalfOccurrence, alphabet.length);
 		
@@ -54,7 +54,7 @@ class Master {
 		//Put our results into one Hashtable with keys "occurrence" and "bigrams."
 		Hashtable result =  new Hashtable();
 		result.put("occurrence", smoothedCounts);
-		result.put("bigrams", smoothedCounts);
+		result.put("bigrams", smoothedBigrams);
 		
 		return result;
 	}
@@ -126,6 +126,9 @@ class Master {
 		
 		//Do the same same with only good articles:
 		Hashtable goodArticlesResult = fullAnalysis(concatenatedGoodArticles, alphabet);
+
+		pagesResult.put("num", concatenatedPages.length + 0.0);
+		goodArticlesResult.put("num", concatenatedGoodArticles.length + 0.0);
 		
 		//Serialize and write the counts to json files
 		ReadandWrite.writeString(JSON.serialize(pagesResult), ALL_TARGET_PATH);

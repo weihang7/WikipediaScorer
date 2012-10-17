@@ -26,7 +26,7 @@ class Scorer {
 		
 		//Initiate our probability as the occurrence probability of the first token times
 		//the overall probability of acceptability.
-		Double probability = (Double)acceptableBigrams.get(input[0])
+		Double probability = (Double)acceptableOccurrence.get(input[0])
 				- (Double)allOccurrence.get(input[0])
 				+ acceptableProb;
 		

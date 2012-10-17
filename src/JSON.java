@@ -5,22 +5,31 @@
 import java.util.*;
 public class JSON {
 	public static String serialize(Hashtable table){
-		//create a return string
+		//Create a return string
 		String ret = "{";
-		// create an array of strings that corresponds to the keys of the entered Hashtable
+		
+		//Create an array of strings that corresponds to the keys of the entered Hashtable
 		Object[] objectKeySet = table.keySet().toArray();
 		String[] keySet = Arrays.asList(objectKeySet).toArray(new String[objectKeySet.length]);
-		// if it is a hashtable within a hashtable, read table's component Hashtables.
-		if (table.get(keySet[0]) instanceof Hashtable){
-			ret+=serialize((Hashtable) table.get(keySet[0]));
-		}
-		else{
-			for (int k=0;k<keySet.length-1;k++){
-				ret+="\""+keySet[k]+"\""+":"+table.get(keySet[k])+",";
+		
+		for (int i = 0; i < keySet.length; i += 1) {
+			
+			ret += (i == 0 ? "" : ",");
+			
+			ret += "\"" + keySet[i] + "\":";
+			
+			if (table.get(keySet[i]) instanceof Hashtable){
+				ret+=serialize((Hashtable) table.get(keySet[i]));
 			}
-			ret+="\""+keySet[keySet.length-1]+"\""+":"+table.get(keySet[keySet.length-1]);
-			ret+="}";
+			
+			else{
+				ret += (Double) table.get(keySet[i]);
+			}
 		}
+		
+		//Add the closing brace.
+		ret += "}";
+		
 		return ret;
 	}
 	public static Hashtable parse(String inputJson){
