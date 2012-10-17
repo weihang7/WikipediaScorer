@@ -42,7 +42,7 @@ public class Tokenizer {
 		 */
 				
 		//Initiate the table where we'll store our counts:
-		Hashtable counts = new Hashtable();
+		Hashtable<String, Integer> counts = new Hashtable<String, Integer>();
 		
 		//Initiate the alphabet array:
 		String[] alphabet = new String[size];
@@ -50,7 +50,7 @@ public class Tokenizer {
 		for (int i = 0; i < text.length; i += 1) {
 			if (counts.containsKey(text[i])) {
 				//If we've seen this word before, add one to our count of it:
-				counts.put(text[i], (Integer) counts.get(text[i]) + 1);
+				counts.put(text[i], counts.get(text[i]) + 1);
 			}
 			else {
 				//Otherwise, initiate the count of this word as 1.
@@ -70,7 +70,7 @@ public class Tokenizer {
 						alphabet[x] = text[i];
 						break;
 					}
-					else if ((Integer)counts.get(text[i]) > (Integer)counts.get(alphabet[x])) {
+					else if ((Integer)counts.get(text[i]) > counts.get(alphabet[x])) {
 						//If it is full, but the current word is now more common than a word already in it, replace
 						//the less common word with the current one.
 						alphabet[x] = text[i];
@@ -113,23 +113,4 @@ public class Tokenizer {
 		
 		return textToReturn;
 	}
-	
-	public static String[][] fullTokenization(String text, int alphabetSize) {
-		/*
-		 * Given a Wikipedia template string (text) and an alphabet size
-		 * (alphabetSize), tokenizes (text), gets the alphabet of size
-		 * (alphabetSize) from it, and strips (text) using that alphabet.
-		 */
-		
-		//Initiate a an array of string arrays that will utimately contain
-		//the stripped tokens and the alphabet:
-		String[][] returnValue = {{},{}};
-		
-		returnValue[0] = tokenize(text); //First, tokenize the text and store it
-		returnValue[1] = getAlphabet(returnValue[0],alphabetSize); //Then get the alphabet for that token string
-		returnValue[0] = stripTokens(returnValue[0],returnValue[1]); //Then strip the token string using that alphabet.
-		
-		return returnValue;
-	}
-
 }

@@ -95,14 +95,36 @@ class Smoother {
 	public static Hashtable<String, Double> fullCrossSmoothing(
 			Hashtable<String, Double> a,
 			Hashtable<String, Double> b,
-			int ALPHABET_SIZE) {
+			int alphabetSize) {
 		/*
 		 * Perform held out smoothing with (a) as the training data
 		 * and (b) as the held out data and vice versa, and average
 		 * the two results.
 		 */
 		return MarkovFunctions.averageHashtables(
-				fullSmoothing(a, b, ALPHABET_SIZE),
-				fullSmoothing(b, a, ALPHABET_SIZE));
+				fullSmoothing(a, b, alphabetSize),
+				fullSmoothing(b, a, alphabetSize));
+	}
+	
+	public static Count fullCountSmoothing(Count a, Count b, int alphabetSize) {
+		
+		//Do cross HO smoothing for the occurrence counts:
+		Hashtable<String, Double> occurs = 
+				fullCrossSmoothing(a.occurs,
+						b.occurs,
+						alphabetSize);
+		
+		//Start our smoothed bigram counts as an empty Hashtable:
+		Hashtable<String, Hashtable<String, Double>> bigrams = 
+				new Hashtable<String, Hashtable<String, Double>>();
+		
+		//Go through all the alphabet tokens and smooth the bigram
+		//counts between (a) and (b) for each one.
+		for (Enumeration<String> keys = a.bigrams.keys(); keys.hasMoreElements();) {
+			String key = keys.nextElement();
+			bigrams.put(key, fullCrossSmoothing(a.bigrams.get(key), b.bigrams.get(key), alphabetSize));
+		}
+		
+		return new Count(a.num + b.num / 2, occurs, bigrams);
 	}
 }

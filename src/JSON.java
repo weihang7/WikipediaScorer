@@ -32,6 +32,13 @@ public class JSON {
 		
 		return ret;
 	}
+	
+	public static String serializeCount(Count c) {
+		return "{\"num\":"+c.num+"," +
+				"\"occurs\":"+serialize(c.occurs) +
+				"\"bigrams\""+serialize(c.bigrams);
+	}
+	
 	public static Hashtable parse(String inputJson){
 		//create the return Hashtable
 		Hashtable ret = new Hashtable();
