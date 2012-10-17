@@ -66,14 +66,9 @@ public class wikiGUI
 	     		String ext = name.substring(pos+1);
 	     		
 	     		// Determines which function to use based on extension.
-	     		switch (ext){
-	     			case "doc":  textInUse = ReadandWrite.readFromDoc(fileInUse);
-	     				break;
-	     			case "docx":	textInUse = ReadandWrite.readFromDocx(fileInUse);
-	     				break;
-	     			default:	textInUse = ReadandWrite.readFromTxt(fileInUse);
-	     				break;
-	     		}
+	     		textInUse = (ext.equals("doc") ? ReadandWrite.readFromDoc(fileInUse)
+	     				  : (ext.equals("docx") ? ReadandWrite.readFromDocx(fileInUse)
+	     				  : ReadandWrite.readFromTxt(fileInUse)));
      		}
         }
     }
