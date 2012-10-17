@@ -6,7 +6,12 @@
 import java.util.*;
 
 class Scorer {
-	public static double score(String[] input, Hashtable<String,Hashtable<String,Double>> acceptableBigrams, Hashtable<String,Hashtable<String,Double>> allBigrams, Hashtable<String,Double> acceptableOccurrence, Hashtable<String,Double> allOccurrence, double acceptableProb) {
+	public static double score(String[] input, 
+			Hashtable<String,Hashtable<String,Double>> acceptableBigrams, 
+			Hashtable<String,Hashtable<String,Double>> allBigrams, 
+			Hashtable<String,Double> acceptableOccurrence, 
+			Hashtable<String,Double> allOccurrence, 
+			double acceptableProb) {
 		/*
 		 * Given an input (input), a pair of hashtables for the markov model
 		 * of all acceptable Wikipedia entries, and a pair of hashtables for the
