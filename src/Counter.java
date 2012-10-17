@@ -20,8 +20,9 @@ class Counter {
 
 		//This is the Markov transition probabiliities from the previous token:
 		Hashtable<String, Double> lastHash = new Hashtable<String, Double>();
-		
+
 		for (int i = 0; i < corpus.length; i += 1) {
+
 			if (!occurs.containsKey(corpus[i])) {
 				//If we've never seen this token before, set it up:
 				occurs.put(corpus[i], 1.0);
@@ -38,9 +39,9 @@ class Counter {
 			}
 			else {
 				//Otherwise, add one to the number of times we've seen it.
-				lastHash.put(corpus[i], (Double)lastHash.get(corpus[i]) + 1.0);
+				lastHash.put(corpus[i], lastHash.get(corpus[i]) + 1.0);
 			}
-
+			
 			//Update lastHash for the next iteration.
 			lastHash = bigrams.get(corpus[i]);
 		}

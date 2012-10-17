@@ -49,22 +49,27 @@ class Smoother {
 		
 		//Accomodate for unseen tokens.
 		double totalUnseen = 0.0;
-		int numberUnseen = alphabetSize - finalSmoothedCounts.size();
+		int numberUnseen = alphabetSize - finalSmoothedCounts.keySet().size();
 		
 		for (Enumeration<String> keys = held.keys(); keys.hasMoreElements();) {
+			String key = keys.nextElement();
 			if (!finalSmoothedCounts.containsKey(keys)) {
 				//For each token that was unseen in the training corpus,
 				//add the number of times it was seen in the held out corpus
 				//to unseenCounts:
-				totalUnseen += held.get(keys);
+				totalUnseen += held.get(key);
 			}
 		}
 		
-		if (totalUnseen == 0.0) {
+		if (totalUnseen == 0.0 || numberUnseen == 0) {
 			//If there were no unseen tokens seen in the held out
 			//corpus, accommodate anyway.
 			totalUnseen = 1.0;
 			numberUnseen = 1;
+		}
+		
+		if (totalUnseen / numberUnseen == Float.POSITIVE_INFINITY) {
+			System.out.println("WARNING: Infinite unseen count.");
 		}
 
 		//Save this number:

@@ -30,7 +30,6 @@ public class Tokenizer {
 							 .replaceAll(" +"," ") //Remove duplicate spaces
 							 .replaceAll("(?: ?\\. ?)+"," . ") //Remove duplicate periods
 							 .split(" "); //Split by spaces.
-		
 		return tokens;
 	}
 	
@@ -47,7 +46,10 @@ public class Tokenizer {
 		//Initiate the alphabet array:
 		String[] alphabet = new String[size];
 		
-		for (int i = 0; i < text.length; i += 1) {
+		for (int i = 0; i < text.length; i += 1) {			
+			if (text[i] == null) {
+				System.out.println("ERROR! TEXT NULL AT " + i);
+			}
 			if (counts.containsKey(text[i])) {
 				//If we've seen this word before, add one to our count of it:
 				counts.put(text[i], counts.get(text[i]) + 1);
@@ -63,6 +65,7 @@ public class Tokenizer {
 					shouldCheck = false;
 				}
 			}
+			
 			if (shouldCheck) {
 				for (int x = 0; x < size; x += 1) {
 					if (alphabet[x] == null) {
@@ -98,7 +101,7 @@ public class Tokenizer {
 			boolean delete = true;
 			
 			for (int x = 0; x < alphabet.length; x += 1) {
-				if (alphabet[x] == textToReturn[i]) {
+				if (alphabet[x].equals(textToReturn[i])) {
 					//If the token is in the alphabet, turn off the delete flag:
 					delete = false;
 					break;

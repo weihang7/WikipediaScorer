@@ -1,4 +1,3 @@
-import java.io.UnsupportedEncodingException;
 import java.net.*;
 
 import javax.xml.parsers.*;
@@ -20,7 +19,7 @@ public class Fetcher {
 		 * 
 		 * (this is mainly here as shorthand)
 		 */
-		
+				
 		return n.getAttributes().getNamedItem(attribute).getNodeValue();
 	}
 	
@@ -43,6 +42,7 @@ public class Fetcher {
 		 */
 
 		try {
+			System.out.println("Making XML request to: " + url);
 			
 			// Set up a new URL object pointing to the desired URL:
 			URL urlToRequest = new URL(url);
@@ -73,25 +73,20 @@ public class Fetcher {
 		
 		//Start with everything we need for every request to the API,
 		//plus the first argument:
-		String url = "http://en.wikipedia.org/w/api.php?format=xml&action=query"
+		String url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&"
 				   + args[0];
 		
 		//Add the rest of our CGI arguments to it, joined by "&"
 		//and encoded for URLs:
 		for (int i = 0; i < args.length; i += 1) {
-			try {
-				url += "&" + URLEncoder.encode(args[i], "UTF-8");
-			}
-			catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
+			url += "&" + args[i];
 		}
 		
 		return XMLRequest(url);
 					 
 	}
 	
-	private static int[] parseIds(Document xml) {
+	private static int[] parseIds(Document xml, String name, String idprop) {
 		/*
 		 * Given a url pointing to a request for a list of pages from
 		 * Wikipedia's api, parse the results and return the pageids of
@@ -99,14 +94,14 @@ public class Fetcher {
 		 */
 				
 		//Get all the page elements in the xml:
-		NodeList pages = xml.getElementsByTagName("page");
+		NodeList pages = xml.getElementsByTagName(name);
 		
 		//Set up the array to put our pageids in:
 		int[] pageIds = new int[pages.getLength()];
 		
 		for (int i = 0; i < pages.getLength(); i += 1) {
 			//Put each page's pageid into pageIds:
-			pageIds[i] = Integer.parseInt(getAttributeOf(pages.item(i),"pageid"));
+			pageIds[i] = Integer.parseInt(getAttributeOf(pages.item(i), idprop));
 		}
 		
 		return pageIds;
@@ -122,26 +117,28 @@ public class Fetcher {
 		//in it:
 		int[] pageids= new int[n];
 		
-		for (int i = 0; i < n / 20; i += 1) {
+		for (int i = 0; i < n / 10; i += 1) {
 			//Get twenty random pageIds:
 			int[] twentyIds = parseIds(makeWikipediaRequest("list=random",
-					"rnlimit=20",
-					"rnnamespace=0"));
-		
+					"rnlimit=10",
+					"rnnamespace=0"), "page", "id");
+			
 			//Put those twenty ids into pageTexts:
-			for (int x = 0; x < 20; x += 1) {
-				pageids[i * 20 + x] = twentyIds[x];
+			for (int x = 0; x < 10; x += 1) {
+				pageids[i * 10 + x] = twentyIds[x];
 			}
 		}
 		//Get the remaining needed ids:
-		int[] moreIds = parseIds(
-				makeWikipediaRequest("list=random",
-						"rnlimit=" + n % 20,
-						"rnnamespace=0"));
-		
-		//Add them all into pageids:
-		for (int i = 0; i < moreIds.length; i += 1) {
-			pageids[n - (n % 20) + i] = moreIds[i];
+		if (n % 10 > 0) {
+			int[] moreIds = parseIds(
+					makeWikipediaRequest("list=random",
+							"rnlimit=" + n % 10,
+							"rnnamespace=0"), "page", "id");
+			
+			//Add them all into pageids:
+			for (int i = 0; i < moreIds.length; i += 1) {
+				pageids[n - (n % 10) + i] = moreIds[i];
+			}
 		}
 		
 		return pageids;
@@ -157,10 +154,9 @@ public class Fetcher {
 		 */
 		
 		return parseIds(makeWikipediaRequest("list=categorymembers",
-							"cmname=Category:+Good+article",
+							"cmtitle=Category:+Good+articles",
 							"cmlimit=" + n,
-							"cmsort=timestamp," +
-							"cminfo="));
+							"cmsort=timestamp"), "cm", "pageid");
 	}
 	
 	private static String[] getPageTexts(int[] ids) {
@@ -173,20 +169,21 @@ public class Fetcher {
 		//the appropriate length to store the ids in blocks of fifty:
 		String[] blocksOfFifty = new String[ids.length / 50 + 
 		                                    (ids.length % 50 == 0 ? 0 : 1)];
-		
+				
 		//Make the place to store the resultant page texts:
 		String[] pageTexts = new String[ids.length];
 		
 		//Construct blocks of fifty ids:
 		for (int i = 0; i < ids.length; i += 1) {
-			if (i % 50 == 0)
+			if (i % 50 == 0) {
 				//If we're in a new block, start it as just this id:
-				blocksOfFifty[i] = String.valueOf(ids[i]);
+				blocksOfFifty[i / 50] = String.valueOf(ids[i]);
+			}
 			else
 				//Otherwise, separate from the last id with "|" and add this id.
-				blocksOfFifty[i/50] += "|" + ids[i];
+				blocksOfFifty[i / 50] += "|" + ids[i];
 		}
-		
+				
 		//Make the request to each block of fifty:
 		for (int i = 0; i < blocksOfFifty.length; i += 1) {
 			Document XML = null;
@@ -195,8 +192,7 @@ public class Fetcher {
 				//Make the request to Wikipedia for these fifty pages:
 				XML = makeWikipediaRequest("prop=revisions",
 						"rvprop=content",
-						"rvlimit=1",
-						"pageids" + URLEncoder.encode(blocksOfFifty[i], "UTF-8"));
+						"pageids=" + URLEncoder.encode(blocksOfFifty[i], "UTF-8"));
 			}
 			catch (Exception e) {
 				//If UTF-8 is not supported by URLEncoder, something has gone

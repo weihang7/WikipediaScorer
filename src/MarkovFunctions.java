@@ -18,17 +18,22 @@ class MarkovFunctions {
 		 * table.
 		 */
 		
-		//Get the hashtable's keys:
-		Enumeration<String> keys = table.keys();
-		
 		//Initiate our return hashtable:
 		Hashtable<Double, ArrayList<String>> inverted = new Hashtable<Double, ArrayList<String>>();
 		
-		//Get the first element of our enumeration:
-		String currentKey = keys.nextElement();
+		//Get the hashtable's keys:
+		Enumeration<String> keys = table.keys();
+		
+		//If it exists, get the first element of our enumeration.
+		String currentKey = null;
+		if (keys.hasMoreElements()) {
+			//Get the first element of our enumeration:
+			currentKey = keys.nextElement();
+		}
 		
 		//Loop through the rest of them:
 		while (keys.hasMoreElements()) {
+			currentKey = keys.nextElement();
 			if (!inverted.containsKey(table.get(currentKey))) {
 				//If we've never seen this value before, initiate it with
 				//a new ArrayList containing only the current key.				
