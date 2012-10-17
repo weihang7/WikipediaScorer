@@ -4,22 +4,24 @@
 import java.util.*;
 
 class Smoother {
-	public static Hashtable heldOutSmoothing(Hashtable training, Hashtable held, int alphabetSize) {
+	public static Hashtable<String, Double> heldOutSmoothing(
+			Hashtable<String, Double> training,
+			Hashtable<String, Double> held,
+			int alphabetSize) {
 		/*
 		 * Perform held out smoothing on a data set.
 		 */
 		
 		//Initiate our hashtables:
-		Hashtable invertedTraining = MarkovFunctions.invertHashtable(training);
-		Hashtable finalSmoothedCounts = new Hashtable();
-		Double[] invertedKeys = (Double[])invertedTraining.keySet().toArray(new Double[invertedTraining.keySet().size()]);
-		
-		//Get the tokens that were seen in the held out corpus:
-		String[] heldKeys = (String[])held.keySet().toArray(new String[held.keySet().size()]);
-		
-		for (int i = 0; i < invertedKeys.length; i += 1) {
+		Hashtable<Double, ArrayList<String>> invertedTraining = 
+				MarkovFunctions.invertHashtable(training);
+		Hashtable<String, Double> finalSmoothedCounts = new Hashtable<String, Double>();
+				
+		for (Enumeration<Double> keys = invertedTraining.keys(); keys.hasMoreElements();) {
+			Double key = keys.nextElement();
+			
 			//Get all the tokens who were seen this many times:
-			ArrayList tokens = (ArrayList)invertedTraining.get(invertedKeys[i]);
+			ArrayList<String> tokens = invertedTraining.get(key);
 			
 			//Initiate our counter:
 			double totalSeen = 0.0;
@@ -29,7 +31,7 @@ class Smoother {
 				//training corpus, get how many times it was seen in the
 				//held out corpus and add it to totalSeen.
 				if (held.containsKey(tokens.get(x))) {
-					totalSeen += (Double)held.get(tokens.get(x));					
+					totalSeen += held.get(tokens.get(x));					
 				}
 			}
 			
@@ -49,12 +51,12 @@ class Smoother {
 		double totalUnseen = 0.0;
 		int numberUnseen = alphabetSize - finalSmoothedCounts.size();
 		
-		for (int i = 0; i < heldKeys.length; i += 1) {
-			if (!finalSmoothedCounts.containsKey(heldKeys[i])) {
+		for (Enumeration<String> keys = held.keys(); keys.hasMoreElements();) {
+			if (!finalSmoothedCounts.containsKey(keys)) {
 				//For each token that was unseen in the training corpus,
 				//add the number of times it was seen in the held out corpus
 				//to unseenCounts:
-				totalUnseen += (Double)held.get(heldKeys[i]);
+				totalUnseen += held.get(keys);
 			}
 		}
 		
@@ -70,7 +72,7 @@ class Smoother {
 		
 		String[] keys = (String[]) finalSmoothedCounts.keySet().toArray(new String[finalSmoothedCounts.keySet().size()]);
 		for (int i = 0; i < keys.length; i += 1) {
-			if ((Double) finalSmoothedCounts.get(keys[i]) < 0) {
+			if (finalSmoothedCounts.get(keys[i]) < 0) {
 				System.out.println(keys[i]);
 			}
 		}
@@ -78,7 +80,10 @@ class Smoother {
 		return finalSmoothedCounts;
 	}
 	
-	public static Hashtable fullSmoothing(Hashtable training, Hashtable held, int alphabetSize) {
+	public static Hashtable<String, Double> fullSmoothing(
+			Hashtable<String, Double> training,
+			Hashtable<String, Double> held,
+			int alphabetSize) {
 		/*
 		 * Perform held out smoothing on a data set,
 		 * and also scale to one.
@@ -87,7 +92,17 @@ class Smoother {
 		return heldOutSmoothing(training, held, alphabetSize);
 	}
 	
-	public static Hashtable fullCrossSmoothing(Hashtable a, Hashtable b, int aLPHABET_SIZE) {
-		return MarkovFunctions.averageHashtables(fullSmoothing(a, b, aLPHABET_SIZE),fullSmoothing(b, a, aLPHABET_SIZE));
+	public static Hashtable<String, Double> fullCrossSmoothing(
+			Hashtable<String, Double> a,
+			Hashtable<String, Double> b,
+			int ALPHABET_SIZE) {
+		/*
+		 * Perform held out smoothing with (a) as the training data
+		 * and (b) as the held out data and vice versa, and average
+		 * the two results.
+		 */
+		return MarkovFunctions.averageHashtables(
+				fullSmoothing(a, b, ALPHABET_SIZE),
+				fullSmoothing(b, a, ALPHABET_SIZE));
 	}
 }

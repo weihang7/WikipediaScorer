@@ -10,73 +10,7 @@ class MarkovFunctions {
 	 * the markov models we make in Counter.java.
 	 */
 	
-	private static double hashtableSum(Hashtable table) {
-		/*
-		 * Given a hashtable (table) mapping strings to doubles,
-		 * return the sum of all the values in that hashtable.
-		 */
-		
-		//Get the hashtable's keys:
-		String[] keys = (String[])table.keySet().toArray();
-		
-		//Initiate our counter:
-		double total = 0.0;
-		
-		for (int i = 0; i < keys.length; i += 1) {
-			//Add each value to the counter:
-			total += (Integer)table.get(keys[i]);
-		}
-
-		return total;
-	}
-	private static Hashtable logarithmicScaleHashtable(Hashtable table, double scalar) {
-		/*
-		 * Given a hashtable (table) and the logarithm of a scalar (scalar),
-		 * scale each value DOWN in the hashtable by the scalar,
-		 * but in logarithms to avoid precision loss.
-		 */
-		
-		//Get the hashtable's keys:
-		String[] keys = (String[])table.keySet().toArray();
-		
-		//Initate our return hashtable:
-		Hashtable tableToReturn = new Hashtable();
-
-		for (int i = 0; i < keys.length; i += 1) {
-			//For each key, get the value associated with it and put
-			//the natural log of that value times the scalar into tableToReturn.
-			tableToReturn.put(keys[i],Math.log((Double)table.get(keys[i])) - scalar);
-		}
-		
-		return tableToReturn;
-	}
-
-	public static Hashtable averageHashtables(Hashtable a, Hashtable b) {
-		String[] keys = (String[])a.keySet().toArray(new String[a.keySet().size()]);
-		Hashtable result = new Hashtable();
-		for (int i = 0; i < keys.length; i += 1) {
-			//Get the approximated counts for keys[i] in each hasthable (__UNSEEN__ if not
-			//in the hashtable).
-			Double aValue = (Double) (a.containsKey(keys[i]) ? a.get(keys[i]) : a.get("__UNSEEN__"));
-			Double bValue = (Double) (b.containsKey(keys[i]) ? b.get(keys[i]) : a.get("__UNSEEN__"));
-			
-			//Put the average of those values into result.
-			result.put(keys[i], (aValue + bValue / 2.0));
-		}
-		return result;
-	}
-	
-	public static Hashtable logarithmicScaleToOne(Hashtable a) {
-		/*
-		 * Given a hashtable (a), return a hashtable
-		 * whose values are in the same ratio as (a),
-		 * but sum to one.
-		 */
-		
-		return logarithmicScaleHashtable(a,Math.log(hashtableSum(a)));
-	}
-	
-	public static Hashtable invertHashtable(Hashtable table) {
+	public static Hashtable<Double, ArrayList<String>> invertHashtable(Hashtable<String, Double> table) {
 		/*
 		 * Given a hashtable (table), return a hashtable
 		 * mapping all the values in the original table
@@ -85,26 +19,55 @@ class MarkovFunctions {
 		 */
 		
 		//Get the hashtable's keys:
-		String[] keys = (String[])table.keySet().toArray(new String[table.keySet().size()]);
+		Enumeration<String> keys = table.keys();
 		
 		//Initiate our return hashtable:
-		Hashtable inverted = new Hashtable();
+		Hashtable<Double, ArrayList<String>> inverted = new Hashtable<Double, ArrayList<String>>();
 		
-		for (int i = 0; i < keys.length; i += 1) {
-			if (!inverted.containsKey(table.get(keys[i]))) {
+		//Get the first element of our enumeration:
+		String currentKey = keys.nextElement();
+		
+		//Loop through the rest of them:
+		while (keys.hasMoreElements()) {
+			if (!inverted.containsKey(table.get(currentKey))) {
 				//If we've never seen this value before, initiate it with
-				//a new ArrayList containing only the current key.
-				ArrayList list = new ArrayList();
-				list.add(keys[i]);
-				inverted.put(table.get(keys[i]),list);
+				//a new ArrayList containing only the current key.				
+				ArrayList<String> list = new ArrayList<String>();
+				list.add(currentKey);
+				inverted.put(table.get(currentKey),list);
 			}
 			else {
 				//Otherwise, add the current key to the list of keys with this
 				//value.
-				((ArrayList)inverted.get(table.get(keys[i]))).add(keys[i]);
+				inverted.get(table.get(currentKey)).add(currentKey);
 			}
 		}
 		
 		return inverted;
+	}
+	
+	public static Hashtable<String, Double> averageHashtables(Hashtable<String, Double> a,
+			Hashtable<String, Double> b) {
+				
+		//Initiate our result hashtable with nothing in it:
+		Hashtable<String, Double> result = new Hashtable<String, Double>();
+		
+		//Loop through the keys of the hashtable and average the values.
+		for (Enumeration<String> keys = a.keys(); keys.hasMoreElements();) {
+			
+			String key = keys.nextElement();
+			
+			//Get the approximated counts for keys[i] in each hashtable 
+			//(__UNSEEN__ if not in the hashtable).
+			Double aValue = a.containsKey(key) ? a.get(key)
+						  : a.get("__UNSEEN__");
+			Double bValue = b.containsKey(key) ? b.get(key)
+					      : b.get("__UNSEEN__");
+			
+			//Put the average of those values into result.
+			result.put(key, (aValue + bValue / 2.0));
+		}
+		
+		return result;
 	}
 }
