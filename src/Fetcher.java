@@ -1,6 +1,5 @@
 import java.io.UnsupportedEncodingException;
 import java.net.*;
-import java.util.*;
 
 import javax.xml.parsers.*;
 
@@ -9,7 +8,7 @@ import org.w3c.dom.*;
 /**
  * @author David Anthony Bau
  */
-public class NewFetcher {
+public class Fetcher {
 
 	private static DocumentBuilderFactory XMLParserFactory = DocumentBuilderFactory
 			.newInstance();
@@ -66,6 +65,12 @@ public class NewFetcher {
 	}
 	
 	private static Document makeWikipediaRequest(String... args) {
+		/*
+		 * Given some CGI arguments, make a request to
+		 * the Wikipedia api with those arguments and return
+		 * the result as xml.
+		 */
+		
 		//Start with everything we need for every request to the API,
 		//plus the first argument:
 		String url = "http://en.wikipedia.org/w/api.php?format=xml&action=query"
@@ -159,6 +164,11 @@ public class NewFetcher {
 	}
 	
 	private static String[] getPageTexts(int[] ids) {
+		/*
+		 * Given an array of ints, (ids), return
+		 * the texts of all the pages with those ids.
+		 */
+		
 		//Make an array to store blocks of fifty ids that has
 		//the appropriate length to store the ids in blocks of fifty:
 		String[] blocksOfFifty = new String[ids.length / 50 + 
