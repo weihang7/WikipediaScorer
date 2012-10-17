@@ -16,6 +16,10 @@ public class wikiGUI
     private JTextArea textInput;
     private JButton ioButton;
     private File fileInUse;
+    private static Hashtable<String,Double> allOccurrence;
+    private static Hashtable<String,Double> goodOccurrence;
+    private static Hashtable<String,Hashtable<String,Double>> allBigrams;
+    private static Hashtable<String,Hashtable<String,Double>> goodBigrams;
     private JLabel fileNameLabel;
     private String textInUse;
     private double score;
@@ -78,9 +82,9 @@ public class wikiGUI
     			textInUse=textInput.getText();
     		String[] tokenizedText = Tokenizer.tokenize(textInUse);
     		tokenizedText = Tokenizer.stripTokens(tokenizedText, Tokenizer.getAlphabet(tokenizedText, 1000));
-    		Hashtable randomArticles = JSON.parse(ReadandWrite.readFromTxt(new File("data/bigrams.json")));
-    		Hashtable goodArticles = Fetcher.extractGoodArticles(randomArticles);
-    		score = Scorer.score(tokenizedText, randomArticles, goodArticles, (Double) randomArticles.get("num") / (Double) goodArticles.get("num"));
+    		Hashtable<String, Hashtable<String,Double>> randomArticles = JSON.parse(ReadandWrite.readFromTxt(new File("data/bigrams.json")));
+    		Hashtable<String, Hashtable<String,Double>> goodArticles = Fetcher.extractGoodArticles(randomArticles);
+    		//score = Scorer.score(tokenizedText, randomArticles, goodArticles);
     	}
     }
     private JPanel makeInputPanel()
@@ -145,8 +149,13 @@ public class wikiGUI
 
     public static void main( String[] args )
     {
+    	allOccurrence = JSON.parse(ReadandWrite.readFromTxt(new File("data/allOccurrence.json")));
+    	goodOccurrence = JSON.parse(ReadandWrite.readFromTxt(new File("data/goodOccurrence.json")));
+    	allBigrams = JSON.parse(ReadandWrite.readFromTxt(new File("data/allBigrams.json")));
+    	goodBigrams = JSON.parse(ReadandWrite.readFromTxt(new File("data/goodBigrams.json")));
     	if (!new File("data").exists()){
-    		Master.main(new String[]{"100","1000","data/occurrence.json","data/bigrams.json"});
+    		// TODO change Master to accept 6 arguments.
+    		//Master.main(new String[]{"100","1000","data/occurrence.json","data/bigrams.json"});
     	}
         wikiGUI app = new wikiGUI();
         app.createGUI();
