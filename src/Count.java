@@ -17,4 +17,8 @@ public class Count {
 		this.occurs = occurs;
 		this.bigrams= bigrams;
 	}
+	
+	public String toString() {
+		return "num: " + this.num + "; occurs: " + this.occurs + "; bigrams " + this.bigrams;
+	}
 }
