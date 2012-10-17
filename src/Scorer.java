@@ -5,7 +5,7 @@
 import java.util.*;
 
 class Scorer {
-	public static double score(String[] input, Hashtable[] acceptable, Hashtable[] all, double acceptableProb) {
+	public static double score(String[] input, Hashtable acceptable, Hashtable all, double acceptableProb) {
 		/*
 		 * Given an input (input), a pair of hashtables for the markov model
 		 * of all acceptable Wikipedia entries, and a pair of hashtables for the
@@ -14,14 +14,20 @@ class Scorer {
 		 * return the probability that the input belongs in the "acceptable" category.
 		 */
 		
+		//Unpack the Hashtables:
+		Hashtable acceptableBigrams = (Hashtable)acceptable.get("bigrams");
+		Hashtable acceptableOccurrence = (Hashtable)acceptable.get("occurrence");
+		Hashtable allBigrams = (Hashtable)all.get("bigrams");
+		Hashtable allOccurrence = (Hashtable)all.get("occurrence");
+		
 		//Initiate all our Markov models to begin at the first token:
-		Hashtable lastAcceptableHash = (Hashtable)acceptable[1].get(input[0]);
-		Hashtable lastAllHash = (Hashtable)all[1].get(input[0]);
+		Hashtable lastAcceptableHash = (Hashtable)acceptableBigrams.get(input[0]);
+		Hashtable lastAllHash = (Hashtable)allBigrams.get(input[0]);
 		
 		//Initiate our probability as the occurrence probability of the first token times
 		//the overall probability of acceptability.
-		Double probability = (Double)acceptable[0].get(input[0])
-				- (Double)all[0].get(input[0])
+		Double probability = (Double)acceptableBigrams.get(input[0])
+				- (Double)allOccurrence.get(input[0])
 				+ acceptableProb;
 		
 		for (int i = 1; i < input.length; i += 1) {
@@ -45,8 +51,8 @@ class Scorer {
 			
 			//Update lastAcceptableHash and lastAllHash to move along the Markov
 			//model.
-			lastAcceptableHash = (Hashtable)acceptable[1].get(input[i]);
-			lastAllHash = (Hashtable)all[1].get(input[i]);
+			lastAcceptableHash = (Hashtable)acceptableBigrams.get(input[i]);
+			lastAllHash = (Hashtable)allBigrams.get(input[i]);
 		}
 		
 		return probability;
