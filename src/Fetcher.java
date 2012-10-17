@@ -42,7 +42,7 @@ public class Fetcher {
 		 */
 
 		try {
-			System.out.println("Making XML request to: " + url);
+			System.out.println("(making request)");
 			
 			// Set up a new URL object pointing to the desired URL:
 			URL urlToRequest = new URL(url);

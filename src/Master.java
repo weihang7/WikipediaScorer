@@ -6,17 +6,18 @@ class Master {
 		//Accept some arguments.
 		final int DATA_SIZE = Integer.parseInt(args[0]);
 		final int ALPHABET_SIZE = Integer.parseInt(args[1]);
-		final String STORE_LOCATION = args[2];
+		final String COUNT_STORE_LOCATION = args[2];
+		final String PROB_STORE_LOCATION = args[3];
 		
 		//Fetch:
+		System.out.println("Fetching...");
+		
 		String[] allArticles = Fetcher.getRandomArticles(DATA_SIZE);
 		String[] goodArticles = Fetcher.getGoodArticles(DATA_SIZE);
 		
-		System.out.println("---- DONE WITH FETCHING ----");
-
-		System.out.println("Concatenating articles...");
-		
 		//Concatenate:
+		System.out.println("Concatenating articles...");
+
 		String allConcat = "";
 		String goodConcat = "";
 		
@@ -27,18 +28,20 @@ class Master {
 			goodConcat += goodArticles[i];
 		}
 		
-		System.out.println("Tokenizing...");
 		
 		//Tokenize:
+		System.out.println("Tokenizing...");
+
 		String[] all = Tokenizer.tokenize(allConcat);
 		String[] good = Tokenizer.tokenize(goodConcat);
 		
-		System.out.println("Consummating tokens...");
 		
 		//Put all the tokens in one place to get the alphabet for
 		//the whole thing:
 		//TODO: Inefficient! change Tokenizer to accept both all and good
 		//simultaneously
+		System.out.println("Consummating tokens...");
+
 		String[] consummate = new String[all.length + good.length];
 		for (int i = 0; i < all.length; i += 1) {
 			if (good[i] == null) {
@@ -55,13 +58,15 @@ class Master {
 			consummate[all.length + i] = good[i];
 		}
 		
-		System.out.println("Getting alphabet...");
 		
 		//Get alphabet:
+		System.out.println("Getting alphabet...");
+
 		String[] alphabet = Tokenizer.getAlphabet(consummate, ALPHABET_SIZE);
 		
-		System.out.println("Stripping tokens...");
 		//Strip down to only alphabetic tokens:
+		System.out.println("Stripping tokens...");
+
 		all = Tokenizer.stripTokens(all, alphabet);
 		good = Tokenizer.stripTokens(good, alphabet);
 				
@@ -89,17 +94,19 @@ class Master {
 			}
 		}
 		
-		System.out.println("Counting...");
 		
 		//Count:
+		System.out.println("Counting...");
+
 		Count[] allCounts = {Counter.count(allDivided[0], alphabet),
 				Counter.count(allDivided[1], alphabet)};
 		Count[] goodCounts = {Counter.count(goodDivided[0], alphabet),
 				Counter.count(goodDivided[1], alphabet)};
 		
-		System.out.println("Smoothing...");
 		
 		//Smooth:
+		System.out.println("Smoothing...");
+
 		Count allSmooth = Smoother.fullCountSmoothing(allCounts[0], allCounts[1], alphabet.length);
 		Count goodSmooth = Smoother.fullCountSmoothing(goodCounts[0], goodCounts[1], alphabet.length);
 		
@@ -109,22 +116,35 @@ class Master {
 		allSmooth.num = 4076900;
 		goodSmooth.num = 15949;
 		
-		System.out.println("Serializing...");
+		//Logarithmically scale:
+		System.out.println("Scaling...");
+		Count allProbs = MarkovFunctions.logScaleCount(allSmooth);
+		Count goodProbs = MarkovFunctions.logScaleCount(goodSmooth);
+		
 		
 		//Serialize:
+		System.out.println("Serializing...");
 		//TODO: get JSON.java to do all of this (reduce to one method call):
-		String jsonToStore = "{"
+		String countJSON = "{"
 				+ "\"all\":"
 				+ JSON.serializeCount(allSmooth) + ","
 				+ "\"good\":"
 				+ JSON.serializeCount(goodSmooth)
 				+ "}";
 		
-		System.out.println("Storing...");
+		String probJSON = "{"
+				+ "\"all\":"
+				+ JSON.serializeCount(allProbs) + ","
+				+ "\"good\":"
+				+ JSON.serializeCount(goodProbs)
+				+ "}";
 		
 		//Write to file:
-		ReadandWrite.writeString(jsonToStore, STORE_LOCATION);
-
+		System.out.println("Storing...");
+		ReadandWrite.writeString(countJSON, COUNT_STORE_LOCATION);
+		ReadandWrite.writeString(probJSON, PROB_STORE_LOCATION);
+		
+		//Log that we are finished.
 		System.out.println("DONE.");
 	}
 }
