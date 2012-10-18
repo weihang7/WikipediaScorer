@@ -40,9 +40,9 @@ public class JSON {
 				"}";
 	}
 	
-	public static Hashtable parse(String inputJson){
+	public static Hashtable<String, Object> parse(String inputJson){
 		//create the return Hashtable
-		Hashtable ret = new Hashtable();
+		Hashtable<String, Object> ret = new Hashtable<String, Object>();
 		//define variables for keeping track of the progress of the function
 		boolean inName = true;
 		int currentIndex = 0;
@@ -98,5 +98,21 @@ public class JSON {
 			}
 		}
 		return ret;
+	}
+	
+	public static Hashtable<String, Count> parseAll(String input) {
+		Hashtable<String, Object> global = (Hashtable<String, Object>) parse(input);
+		Hashtable<String, Object> allHash = (Hashtable<String, Object>) global.get("all");
+		Hashtable<String, Object> goodHash = (Hashtable<String, Object>) global.get("good");
+		Count all = new Count((Integer) allHash.get("num"),
+				(Hashtable<String, Double>) allHash.get("occurs"),
+				(Hashtable<String, Hashtable<String, Double>>) allHash.get("bigrams"));
+		Count good = new Count((Integer)goodHash.get("num"),
+				(Hashtable<String, Double>) goodHash.get("occurs"),
+				(Hashtable<String, Hashtable<String, Double>>) goodHash.get("bigrams"));
+		Hashtable<String, Count> result = new Hashtable<String, Count>();
+		result.put("all", all);
+		result.put("good", good);
+		return result;
 	}
 }

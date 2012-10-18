@@ -99,4 +99,8 @@ public class JSON {
 		}
 		return ret;
 	}
+	
+	public static Hashtable<String, Count> parseAll(String input) {
+		Hashtable<Object, Object> global = parse(input);		
+	}
 }
