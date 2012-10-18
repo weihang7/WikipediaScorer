@@ -109,7 +109,7 @@ class Master {
 
 		Count allSmooth = Smoother.fullCountSmoothing(allCounts[0], allCounts[1], alphabet.length);
 		Count goodSmooth = Smoother.fullCountSmoothing(goodCounts[0], goodCounts[1], alphabet.length);
-		
+				
 		//Input proper file ratios (hardcoded; gotten from
 		//http://en.wikipedia.org/wiki/Wikipedia:Good articles)
 		//TODO: Fetch these numbers dynamically, maybe with a crawler.

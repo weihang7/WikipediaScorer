@@ -14,7 +14,7 @@ class Scorer {
 		 * probability that any given Wikipedia entry is acceptable,
 		 * return the probability that the input belongs in the "acceptable" category.
 		 */
-		
+				
 		//Initiate all our Markov models to begin at the first token:
 		Hashtable<String,Double> lastAcceptableHash = good.bigrams.get(input[0]);
 		Hashtable<String,Double> lastAllHash = all.bigrams.get(input[0]);
@@ -52,7 +52,8 @@ class Scorer {
 		}
 		
 		//Convert probability from ln(probability) back to normal
-		probability = Math.pow(probability, Math.E);
+
+		probability = Math.pow(Math.E, probability);
 		return probability;
 	}
 }

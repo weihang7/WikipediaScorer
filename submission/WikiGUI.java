@@ -2,17 +2,22 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
+import java.util.Hashtable;
 import java.awt.Container.*;
 import javax.swing.text.*;
 
 public class WikiGUI extends JPanel
 {
     // decrlared variables to be used in the future
+	private Count all;
+	private Count good;
+	private String[] alphabet;
     private JFrame window;
     private JTextArea wordInput;
     private JButton ioButton;
     private File fileInUse;
     private JLabel fileNameLabel;
+    private JLabel scoreLabel;
     private JProgressBar progBar;
     private final int MY_MIN=0;
     private final int MY_MAX=100;
@@ -20,7 +25,13 @@ public class WikiGUI extends JPanel
     public JToolBar toolBar;
     public static final String QUESTION_MENU = "Questions?";
 
-    public WikiGUI(){
+    public WikiGUI(Count all, Count good){
+    	
+    	this.all = all;
+    	this.good = good;
+    	this.alphabet = (String[]) all.occurs.keySet().toArray(
+    			new String[all.occurs.keySet().size()]);
+    	
         //creates the menuBar
         menuBar = new JMenuBar();
         
@@ -90,6 +101,15 @@ public class WikiGUI extends JPanel
         }
     }
 
+    class CalculateListener implements ActionListener {
+    	public void actionPerformed(ActionEvent e) {
+    		String text = wordInput.getText();
+    		String[] tokens = Tokenizer.tokenize(text);
+    		tokens = Tokenizer.stripTokens(tokens, alphabet);
+    		scoreLabel.setText(Scorer.score(tokens, all, good) + "");
+    	}
+    }
+    
     //Make a new panel. Add a label to the panel.
     private JPanel makeInputLabelPanel()
     {
@@ -157,6 +177,7 @@ public class WikiGUI extends JPanel
     {
         JPanel p = new JPanel();
         JButton b = new JButton ("Calculate");
+        b.addActionListener(new CalculateListener());
         p.add(b);
         return p;
     }
@@ -166,8 +187,8 @@ public class WikiGUI extends JPanel
     {
         JPanel p = new JPanel();
         int x = 0;
-        JLabel l = new JLabel("You wrote "+x+"% in the encyclopedic style.");
-        p.add(l);
+        scoreLabel = new JLabel("You wrote "+x+"% in the encyclopedic style.");
+        p.add(scoreLabel);
 
         progBar = new JProgressBar();
         progBar.setMinimum(MY_MIN);
@@ -206,7 +227,10 @@ public class WikiGUI extends JPanel
     //Main Method
     public static void main( String[] args )
     {
-        WikiGUI app = new WikiGUI();
+    	Hashtable<String, Count> loaded = JSON.parseAll(ReadandWrite.readFromTxt(new File("probs.json")));
+    	Count all = loaded.get("all");
+    	Count good = loaded.get("good");
+        WikiGUI app = new WikiGUI(all, good);
         JFrame theWindow = app.createGUI();
         theWindow.setJMenuBar(app.menuBar);
         theWindow.setVisible(true);

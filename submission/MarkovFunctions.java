@@ -24,27 +24,23 @@ class MarkovFunctions {
 		//Get the hashtable's keys:
 		Enumeration<String> keys = table.keys();
 		
-		//If it exists, get the first element of our enumeration.
-		String currentKey = null;
-		if (keys.hasMoreElements()) {
-			//Get the first element of our enumeration:
-			currentKey = keys.nextElement();
-		}
-		
-		//Loop through the rest of them:
-		while (keys.hasMoreElements()) {
-			currentKey = keys.nextElement();
-			if (!inverted.containsKey(table.get(currentKey))) {
-				//If we've never seen this value before, initiate it with
-				//a new ArrayList containing only the current key.				
-				ArrayList<String> list = new ArrayList<String>();
-				list.add(currentKey);
-				inverted.put(table.get(currentKey),list);
-			}
-			else {
-				//Otherwise, add the current key to the list of keys with this
-				//value.
-				inverted.get(table.get(currentKey)).add(currentKey);
+		//See if there are any such keys:
+		if (keys.hasMoreElements()) {		
+			//Loop through the them if there are:
+			while (keys.hasMoreElements()) {
+				String currentKey = keys.nextElement();
+				if (!inverted.containsKey(table.get(currentKey))) {
+					//If we've never seen this value before, initiate it with
+					//a new ArrayList containing only the current key.				
+					ArrayList<String> list = new ArrayList<String>();
+					list.add(currentKey);
+					inverted.put(table.get(currentKey),list);
+				}
+				else {
+					//Otherwise, add the current key to the list of keys with this
+					//value.
+					inverted.get(table.get(currentKey)).add(currentKey);
+				}
 			}
 		}
 		

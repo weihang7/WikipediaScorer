@@ -5,8 +5,58 @@ import java.io.*;
 
 import javax.swing.JOptionPane;
 
+import org.apache.poi.hwpf.extractor.*;
+import org.apache.poi.hwpf.*;
+
+import org.apache.poi.xwpf.*;
+import org.apache.poi.xwpf.extractor.*;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 //Import needed functions
-public class ReadandWrite {	
+public class ReadandWrite {
+	public static String readFromDoc(File docfile){
+		
+		//Establishing the things to receive data from the FileInputStream
+		String ret = "";
+		
+		try {
+			//Create a FileInputStream that links the HWPFDocument and a WordExtractor
+			FileInputStream fis=new FileInputStream(docfile);
+			HWPFDocument document=new HWPFDocument(fis);
+			WordExtractor extractor = new WordExtractor(document);
+			
+			//Extract the text
+			ret=extractor.getText();
+		}
+		catch(Exception exep){
+			// Catch exceptions
+			JOptionPane.showMessageDialog(null,"docLoadingException");
+		}
+		
+		return ret;
+	}
+	
+	public static String readFromDocx(File docxfile){
+
+		//Establishing the things to receive data from the FileInputStream
+		String ret = "";
+		
+		try {
+			//Create a FileInputStream that links the HWPFDocument and a WordExtractor
+			FileInputStream fis=new FileInputStream(docxfile);
+			XWPFDocument document=new XWPFDocument(fis);
+			XWPFWordExtractor extractor = new XWPFWordExtractor(document);
+			
+			//Extract the text
+			ret=extractor.getText();
+		}
+		catch(Exception exep){
+			// Catch exceptions
+			JOptionPane.showMessageDialog(null,"docxLoadingException");
+		}
+		
+		return ret;
+	}
+	
 	//Reading from a text file
 	public static String readFromTxt(File txtfile){
 		String text="";

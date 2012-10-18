@@ -177,6 +177,7 @@ public class WikiGUI extends JPanel
     {
         JPanel p = new JPanel();
         JButton b = new JButton ("Calculate");
+        b.addActionListener(new CalculateListener());
         p.add(b);
         return p;
     }
@@ -186,8 +187,8 @@ public class WikiGUI extends JPanel
     {
         JPanel p = new JPanel();
         int x = 0;
-        JLabel l = new JLabel("You wrote "+x+"% in the encyclopedic style.");
-        p.add(l);
+        scoreLabel = new JLabel("You wrote "+x+"% in the encyclopedic style.");
+        p.add(scoreLabel);
 
         progBar = new JProgressBar();
         progBar.setMinimum(MY_MIN);
@@ -226,7 +227,6 @@ public class WikiGUI extends JPanel
     //Main Method
     public static void main( String[] args )
     {
-    	System.out.println(ReadandWrite.readFromTxt(new File("probs.json")));
     	Hashtable<String, Count> loaded = JSON.parseAll(ReadandWrite.readFromTxt(new File("probs.json")));
     	Count all = loaded.get("all");
     	Count good = loaded.get("good");

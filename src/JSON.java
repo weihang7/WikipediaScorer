@@ -40,74 +40,53 @@ public class JSON {
 				"}";
 	}
 	
-	public static Hashtable<String, Object> parse(String inputJson){
-		//create the return Hashtable
-		Hashtable<String, Object> ret = new Hashtable<String, Object>();
-		//define variables for keeping track of the progress of the function
-		boolean inName = true;
-		int currentIndex = 0;
-		int nameFinishedIndex = 0;
-		int startingIndex = 1;
-		String currentName = "";
-		boolean continueSearching = false;
-		String preliminaryEvaluation = "";
-		String valueString = "";
-		//do the process to the whole string
-		while (currentIndex<inputJson.length()){
-			currentIndex+=1;// ignore the first brace
-			startingIndex = currentIndex;//store the starting index of the key
-			//label the outer loop to make breaking more convenient
-			nameOuterLoop:
-			//continually seek ":", which is the separation symbol between key and value
-			while (currentIndex<inputJson.length()){
-				if (inputJson.charAt(currentIndex)==':'){
-					inName = false;
-					//store the name in a string
-					currentName = inputJson.substring(startingIndex, currentIndex);
-					break nameOuterLoop;
-				}
-				currentIndex+=1;
-			}
-			nameFinishedIndex = currentIndex;
-			currentIndex+=1;
-			//label the outer loop
-			valueOuterLoop:
-			//continually parse the content
-			while (currentIndex<inputJson.length()){
-				if (inputJson.charAt(currentIndex)==','||inputJson.charAt(currentIndex)=='}'){
-					preliminaryEvaluation = inputJson.substring(nameFinishedIndex+1, currentIndex);
-					// if it is a Hashtable
-					if (preliminaryEvaluation.startsWith("{")){
-						//search until finding "}"
-						continueSearching = true;
-						if (preliminaryEvaluation.endsWith("}")){
-							continueSearching = false;
-							//recursively parse the component Hashtable
-							ret.put(currentName, parse(preliminaryEvaluation));
-							break valueOuterLoop;
-						}
-					}
-					else{
-						//parse the value into double
-						valueString = inputJson.substring(nameFinishedIndex+1, currentIndex);
-						ret.put(currentName,Double.parseDouble(valueString));
-						break valueOuterLoop;
-					}
-				}
-				currentIndex+=1;
-			}
+	public static Object parse(String input) {
+		if (input.charAt(0) == '"') {
+			return input.substring(1, input.length() - 1);
 		}
-		return ret;
+		else if (input.charAt(0) == '{') {
+			Hashtable<Object, Object> result = new Hashtable<Object, Object>();
+			String currentKey = "";
+			String currentValue = "";
+			boolean addToKey = true;
+			int depth = 0;
+			for (int i = 1; i < input.length() - 1; i += 1){
+				if (input.charAt(i) == '{') {
+					depth += 1;
+				}
+				else if (input.charAt(i) == '}') {
+					depth -= 1;
+				}
+				if (depth == 0) {
+					if (input.charAt(i) == ':') {
+						addToKey = false;
+						continue;
+					}
+					else if (input.charAt(i) == ',' || i == input.length() - 2) {
+						currentValue += (i == input.length() - 2 ? input.charAt(i) : "");
+						result.put(parse(currentKey), parse(currentValue));
+						currentKey = "";
+						currentValue = "";
+						addToKey = true;
+						continue;
+					}
+				}
+				if (addToKey) currentKey += input.charAt(i);
+				else currentValue += input.charAt(i);
+			}
+			return result;
+		}
+		else return Double.parseDouble(input);
 	}
 	
 	public static Hashtable<String, Count> parseAll(String input) {
 		Hashtable<String, Object> global = (Hashtable<String, Object>) parse(input);
 		Hashtable<String, Object> allHash = (Hashtable<String, Object>) global.get("all");
 		Hashtable<String, Object> goodHash = (Hashtable<String, Object>) global.get("good");
-		Count all = new Count((Integer) allHash.get("num"),
+		Count all = new Count(((Double) allHash.get("num")).intValue(),
 				(Hashtable<String, Double>) allHash.get("occurs"),
 				(Hashtable<String, Hashtable<String, Double>>) allHash.get("bigrams"));
-		Count good = new Count((Integer)goodHash.get("num"),
+		Count good = new Count(((Double)goodHash.get("num")).intValue(),
 				(Hashtable<String, Double>) goodHash.get("occurs"),
 				(Hashtable<String, Hashtable<String, Double>>) goodHash.get("bigrams"));
 		Hashtable<String, Count> result = new Hashtable<String, Count>();

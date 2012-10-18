@@ -12,6 +12,9 @@ class Smoother {
 		 * Perform held out smoothing on a data set.
 		 */
 		
+		//Accommodate for the fact that * exists:
+		alphabetSize += 1;
+		
 		//Initiate our hashtables:
 		Hashtable<Double, ArrayList<String>> invertedTraining = 
 				MarkovFunctions.invertHashtable(training);
@@ -47,7 +50,7 @@ class Smoother {
 			}
 		}
 		
-		//Accomodate for unseen tokens.
+		//Accommodate for unseen tokens.
 		double totalUnseen = 0.0;
 		int numberUnseen = alphabetSize - finalSmoothedCounts.keySet().size();
 		
@@ -76,11 +79,6 @@ class Smoother {
 		finalSmoothedCounts.put("__UNSEEN__",totalUnseen/numberUnseen);
 		
 		String[] keys = (String[]) finalSmoothedCounts.keySet().toArray(new String[finalSmoothedCounts.keySet().size()]);
-		for (int i = 0; i < keys.length; i += 1) {
-			if (finalSmoothedCounts.get(keys[i]) < 0) {
-				System.out.println(keys[i]);
-			}
-		}
 		
 		return finalSmoothedCounts;
 	}

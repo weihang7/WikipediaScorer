@@ -57,6 +57,14 @@ class Counter {
 			}
 		}
 		
+		//If we haven't seen a non-alphabetic token, account for that too:
+		if (!bigrams.containsKey("*")) {
+			bigrams.put("*", new Hashtable<String, Double>());
+		}
+		if (!occurs.containsKey("*")) {
+			occurs.put("*", 0.0);
+		}
+				
 		//Make a Count out of this (with num = 1, since we don't know what
 		//num should be), and return it.
 		return new Count(1, occurs, bigrams);
