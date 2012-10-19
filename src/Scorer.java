@@ -6,7 +6,7 @@
 import java.util.*;
 
 class Scorer {
-	public static double score(String[] input, Count all, Count good) {
+	public static double score(String[] input, Count bad, Count good) {
 		/*
 		 * Given an input (input), a pair of hashtables for the markov model
 		 * of all acceptable Wikipedia entries, and a pair of hashtables for the
@@ -14,46 +14,49 @@ class Scorer {
 		 * probability that any given Wikipedia entry is acceptable,
 		 * return the probability that the input belongs in the "acceptable" category.
 		 */
-				
-		//Initiate all our Markov models to begin at the first token:
-		Hashtable<String,Double> lastAcceptableHash = good.bigrams.get(input[0]);
-		Hashtable<String,Double> lastAllHash = all.bigrams.get(input[0]);
-		Double acceptableProb = Math.log(good.num) - Math.log(all.num);
 		
-		//Initiate our probability as the occurrence probability of the first token times
-		//the overall probability of acceptability.
-		Double probability = good.occurs.get(input[0])
-				- all.occurs.get(input[0])
-				+ acceptableProb;
+		/*
+		 * We need: P(thisArticle | good) P(good),
+		 * P(thisArticle | bad) P(bad)
+		 */
 		
-		for (int i = 1; i < input.length; i += 1) {
-			//Per token, get our estimate of the probability that an acceptable
-			//document has this token and multiply:
-			if (lastAcceptableHash.containsKey(input[i])) {
-				probability  += lastAcceptableHash.get(input[i]);
-			}
-			else {
-				probability += lastAcceptableHash.get("__UNSEEN__");
-			}
+		double logBadProbability = Math.log(((double) bad.num) / (bad.num + good.num))
+								  + bad.occurs.get(input[0]);
+		double logGoodProbability = Math.log(((double) good.num) / (bad.num + good.num))
+								  + good.occurs.get(input[0]);		
+		
+		Hashtable<String, Double> lastBad;
+		Hashtable<String, Double> lastGood;
+		
+		for (int i = 0; i < input.length; i += 1) {
+			lastBad = bad.bigrams.get(input[i]);
+			lastGood = good.bigrams.get(input[i]);
 			
-			//Similarly, get our estimate of the probability that any document
-			//has this token and divide:
-			if (lastAllHash.containsKey(input[i])) {
-				probability -= lastAllHash.get(input[i]);
-			}
-			else {
-				probability -= lastAllHash.get("__UNSEEN__");
-			}
-			
-			//Update lastAcceptableHash and lastAllHash to move along the Markov
-			//model.
-			lastAcceptableHash = good.bigrams.get(input[i]);
-			lastAllHash = all.bigrams.get(input[i]);
+			logBadProbability += lastBad.containsKey(input[i]) ? lastBad.get(input[i])
+							   : lastBad.get("__UNSEEN__");
+			logGoodProbability += lastGood.containsKey(input[i]) ? lastGood.get(input[i])
+								: lastGood.get("__UNSEEN__");
+		}
+
+		System.out.println("AFTER MARKOV RUN");
+		System.out.println(logBadProbability);
+		System.out.println(logGoodProbability);
+		
+		if (logGoodProbability > logBadProbability) {
+			logBadProbability -= logGoodProbability;
+			logGoodProbability = 0;
+		}
+		else {
+			logGoodProbability -= logBadProbability;
+			logBadProbability = 0;
 		}
 		
-		//Convert probability from ln(probability) back to normal
-
-		probability = Math.pow(Math.E, probability);
-		return probability;
+		System.out.println(logGoodProbability);
+		System.out.println(logBadProbability);
+		
+		double goodProbability = Math.pow(Math.E, logGoodProbability);
+		double badProbability = Math.pow(Math.E, logBadProbability);
+		
+		return Math.log ( goodProbability / (goodProbability + badProbability));
 	}
 }
