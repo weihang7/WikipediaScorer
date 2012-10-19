@@ -130,4 +130,41 @@ class MarkovFunctions {
 		//Make a new Count object with them and return.
 		return new Count(a.num, occurs, bigrams);
 	}
+	public static Count weightedAverage(Count bad,Count good){
+		double ratio = bad.num/good.num;
+		Hashtable<String,Double> weightedOccur = new Hashtable<String,Double>();
+		Hashtable<String,Hashtable<String,Double>> weightedBigrams =
+				new Hashtable<String,Hashtable<String,Double>>();
+		while (bad.occurs.keys().hasMoreElements()){
+			String currentBadKey = bad.occurs.keys().nextElement();
+			Double currentBadValue = bad.occurs.get(currentBadKey);
+			Double currentGoodValue = 0.0;
+			if (good.occurs.containsKey(currentBadKey)){
+				currentGoodValue = good.occurs.get(currentBadKey);
+				weightedOccur.put(currentBadKey, currentBadValue+ratio*currentGoodValue);
+			}
+			else{
+				weightedOccur.put("__UNSEEN__", currentBadValue);
+			}
+		}
+		while (bad.bigrams.keys().hasMoreElements()){
+			String currentBadKey = bad.bigrams.keys().nextElement();
+			Hashtable<String,Double> currentValueHashtable = bad.bigrams.get(currentBadKey);
+			Hashtable<String,Double> returnHashtable = new Hashtable<String,Double>();
+			while(currentValueHashtable.keys().hasMoreElements()){
+				String currentBadHashKey = currentValueHashtable.keys().nextElement();
+				Double currentBadValue = currentValueHashtable.get(currentBadHashKey);
+				Double currentGoodValue = 0.0;
+				if (good.bigrams.get(currentBadKey).containsKey(currentBadHashKey)){
+					currentGoodValue = good.bigrams.get(currentBadKey).get(currentBadHashKey);
+					returnHashtable.put(currentBadHashKey, currentBadValue+ratio*currentGoodValue);
+				}
+				else{
+					returnHashtable.put("__UNSEEN__", currentBadValue);
+				}
+			}
+			weightedBigrams.put(currentBadKey, returnHashtable);
+		}
+		return new Count(2*bad.num,weightedOccur,weightedBigrams);
+	}
 }
