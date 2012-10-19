@@ -77,9 +77,7 @@ class Smoother {
 
 		//Save this number:
 		finalSmoothedCounts.put("__UNSEEN__",totalUnseen/numberUnseen);
-		
-		String[] keys = (String[]) finalSmoothedCounts.keySet().toArray(new String[finalSmoothedCounts.keySet().size()]);
-		
+				
 		return finalSmoothedCounts;
 	}
 	
