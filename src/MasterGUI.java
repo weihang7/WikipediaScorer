@@ -7,7 +7,13 @@ public class MasterGUI extends JFrame {
 		 return frame;
 	 }
 	 public JPanel makeTopPanel(){
-	 JPanel topPanel= new JPanel();
+		 JPanel topPanel= new JPanel();
+	 }
+	 public JPanel makeMiddlePanel(){
+		 JPanel middlePanel = new JPanel();
+	 }
+	 public JPanel makeBottomPanel(){
+		 JPanel bottomPanel = new JPanel();
 	 }
 	 public static void main(String [] args){
 		 MasterGUI gui=new MasterGUI();
