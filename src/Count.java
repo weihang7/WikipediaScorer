@@ -5,7 +5,6 @@ public class Count {
 	 * A simple model of Markov counts over a single
 	 * document.
 	 */
-	
 	public int num;
 	public Hashtable<String, Double> occurs;
 	public Hashtable<String, Hashtable<String, Double>> bigrams;

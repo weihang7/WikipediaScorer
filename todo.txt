@@ -1,9 +1,10 @@
 Count:
-  R double[] occurs
-  R double[][] bigrams
+  A double[] occurs
+  A double[][] bigrams
 
 AlphabetCount:
   R int get(string token)
+  R void add(string token, int num)
 
 DataSet:
   F void addAlphabetCount(AlphabetCount new)
