@@ -9,5 +9,8 @@ private int storeInHashMap(){
 	if()
 	return 12;
 }
+public void hashComponent(){
+	
+}
 
 }
