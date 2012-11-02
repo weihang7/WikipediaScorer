@@ -116,4 +116,12 @@ public class Tokenizer {
 		
 		return textToReturn;
 	}
+	
+	public AlphabetCount countForAlphabet(String[] document){
+		AlphabetCount ret = new AlphabetCount();
+		for(int i=0;i<document.length;i++){
+			ret.add(document[i], 1);
+		}
+		return ret;
+	}
 }
