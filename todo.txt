@@ -1,0 +1,35 @@
+Count:
+  A double[] occurs
+  A double[][] bigrams
+
+AlphabetCount:
+  R int get(string token)
+  R void add(string token, int num)
+
+DataSet:
+  F void addAlphabetCount(AlphabetCount new)
+  F AlphabetCount getAlphabetCount()
+  F void add(Count new)
+  F Count load()
+  F void append(String file, String value)
+  F BufferedStringStream loadStringStream(String file)
+
+Fetcher:
+  A String[] getRandom(int num)
+  A String[] getGood(int num)
+
+Tokenizer:
+  A String[] tokenize(String document)
+  F AlphabetCount countForAlphabet(String[] document)
+  A Alphabet getBestAlphabet(HashMap<String, Integer>)
+  R int[] stripAlphabet(String[] document)
+
+Counter:
+  A Count count(int[] document)
+
+Smoother:
+  A Count smooth(Count a, Count b)
+
+Scorer:
+  A double score(Count p, String[] input)
+
