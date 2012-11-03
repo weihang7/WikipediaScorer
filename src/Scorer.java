@@ -57,6 +57,6 @@ class Scorer {
 		double goodProbability = Math.pow(Math.E, logGoodProbability);
 		double badProbability = Math.pow(Math.E, logBadProbability);
 		
-		return Math.log ( goodProbability / (goodProbability + badProbability));
+		return Math.log ( goodProbability / (goodProbability + badProbability) );
 	}
 }
