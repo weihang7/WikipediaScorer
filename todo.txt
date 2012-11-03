@@ -1,35 +1,43 @@
-Count:
-  A double[] occurs
-  A double[][] bigrams
-
 AlphabetCount:
-  R int get(string token)
-  R void add(string token, int num)
+  R [X] int get(string token)
+  R [X] void add(string token, int num)
 
 DataSet:
-  F void addAlphabetCount(AlphabetCount new)
-  F AlphabetCount getAlphabetCount()
-  F void add(Count new)
-  F Count load()
-  F void append(String file, String value)
-  F BufferedStringStream loadStringStream(String file)
+  F [ ] new DataSet(String baseFileName)
+  
+  (alphabet)
+  F [ ] void addAlphabetCount(AlphabetCount new)
+  F [ ] AlphabetCount getAlphabetCount()
+
+  (tokens)
+  F [ ] void add(boolean which, double[][] new)
+  F [ ] double lookup(boolean which, int token_a, int token_b)
+  F [ ] Enumeration<double[]> enumerate()
+  F [ ] double[][] loadAll(boolean which)
+
+  (files)
+  F [X] void append(String file, String value)
+  F [X] BufferedStringStream loadStringStream(String file)
 
 Fetcher:
-  A String[] getRandom(int num)
-  A String[] getGood(int num)
+  A [X] new Fetcher()
+  A [X] String[] getRandom(int num)
+  A [X] String[] getGood(int num)
 
 Tokenizer:
-  A String[] tokenize(String document)
-  F AlphabetCount countForAlphabet(String[] document)
-  A Alphabet getBestAlphabet(HashMap<String, Integer>)
-  R int[] stripAlphabet(String[] document)
+  A [X] String[] tokenize(String document)
+  F [ ] AlphabetCount countForAlphabet(String[] document)
+  A [X] int[] stripAlphabet(String[] document)
 
 Counter:
-  A Count count(int[] document)
+  A [X] new Counter(int alphabetSize)
+  A [X] void add(int[] document)
+  A [X] double[][] finalize()
 
 Smoother:
-  A Count smooth(Count a, Count b)
+  A [X] Count smooth(Count a, Count b)
 
 Scorer:
-  A double score(Count p, String[] input)
+  A [ ] new Scorer(DataSet data)
+  A [ ] double score(int[] input)
 
