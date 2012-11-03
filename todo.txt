@@ -3,7 +3,8 @@ Count:
   A double[][] bigrams
 
 AlphabetCount:
-  A int get(string token)
+  R int get(string token)
+  R void add(string token, int num)
 
 DataSet:
   F void addAlphabetCount(AlphabetCount new)

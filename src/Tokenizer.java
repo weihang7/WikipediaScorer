@@ -24,11 +24,11 @@ public class Tokenizer {
     //Do our regex modifications to the resultant plaintext:
     String[] tokens =  plaintext.toLowerCase()
                       .replaceAll("\\{\\{[^\\{\\}]*\\}\\}","") //Take out all braced information, which doesn't show to the reader
-		      .replaceAll("\\n+",".") //Replace line breaks with periods
-		      .replaceAll("[^\\w\\. ]","") //Take out punctuation and special characters
-		      .replaceAll(" +"," ") //Remove duplicate spaces
-		      .replaceAll("(?: ?\\. ?)+"," . ") //Remove duplicate periods
-		      .split(" "); //Split by spaces.
+                      .replaceAll("\\n+",".") //Replace line breaks with periods
+                      .replaceAll("[^\\w\\. ]","") //Take out punctuation and special characters
+                      .replaceAll(" +"," ") //Remove duplicate spaces
+                      .replaceAll("(?: ?\\. ?)+"," . ") //Remove duplicate periods
+                      .split(" "); //Split by spaces.
     return tokens;
   }
   
@@ -50,5 +50,13 @@ public class Tokenizer {
     }
     
     return stripped;
+  }
+
+  public AlphabetCount countForAlphabet(String[] document){
+    AlphabetCount ret = new AlphabetCount();
+    for(int i=0;i<document.length;i++){
+      ret.add(document[i], 1);
+    }
+    return ret;
   }
 }
