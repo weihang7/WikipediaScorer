@@ -19,13 +19,13 @@ public class MasterGUI extends JFrame {
 	 }
 	 public JPanel makeMiddlePanel(){
 		 JPanel middlePanel = new JPanel();
-/*
+
 		 JLabel alphaSize = new JLabel("Alphabet Size");
 		 middlePanel.add(alphaSize);
 		 
 		 JTextField addInput = new JTextField(5);
 		 middlePanel.add(addInput);
-		 */
+		 
 		 return middlePanel;
 	 }
 	 public JPanel makeBottomPanel(){
