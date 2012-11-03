@@ -1,8 +1,11 @@
 import javax.swing.*;
-import java.awt.*;
-import java.awt.ActiveEvent;
+//import java.awt.*;
 public class MasterGUI extends JFrame {
 	public JFrame frame;
+	public JPanel makeMiddlePanel;
+	public JPanel makeTopPanel;
+	public JPanel makeBottomPanel;
+	public JPanel makeFinalPanel;
 	
 	 public JPanel makeTopPanel(){
 		 JPanel topPanel= new JPanel();
@@ -10,7 +13,8 @@ public class MasterGUI extends JFrame {
 		 JLabel pages = new JLabel("Number of Pages to Fetch");
 		 topPanel.add(pages);
 		 
-		 JTextField input = new JTextField();
+		 JTextField addInput = new JTextField(5);
+		 topPanel.add(addInput);
 		 return topPanel;
 	 }
 	 public JPanel makeMiddlePanel(){
@@ -27,12 +31,29 @@ public class MasterGUI extends JFrame {
 		 
 	 }
 	 public MasterGUI(){
-	        frame = new JFrame("Wikipedia Analysis Tool");
-	        
+	     frame = new JFrame("Wikipedia Analysis Tool");
+	     JPanel bigPanel = null;
+	     
 		 frame.add(makeTopPanel());
 		 frame.add(makeMiddlePanel());
 		 frame.add(makeBottomPanel());
 		 frame.add(makeFinalPanel());
+		 frame.pack();
+		 
+	     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	     
+	     frame.setSize(630,400);
+	     
+	     	bigPanel = makeTopPanel();
+	        frame.add(bigPanel);
+	        
+	        bigPanel = makeMiddlePanel();
+	        frame.add(bigPanel);
+	        bigPanel = makeBottomPanel();
+	        frame.add(bigPanel);
+	        bigPanel = makeFinalPanel();
+	        frame.add(bigPanel);
+	        //frame.pack();
 	 }
 	 public static void main(String [] args){
 		 MasterGUI gui=new MasterGUI();
@@ -42,6 +63,3 @@ public class MasterGUI extends JFrame {
 		 return frame;
 	 }
 }
-	
-
-
