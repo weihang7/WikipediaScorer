@@ -7,7 +7,7 @@ BufferedDatabaseWriter:
   F [ ] void flush()
 
 DataSet:
-  F [ ] new DataSet(String baseFileName)
+  F [X] new DataSet(String baseFileName)
   
   (alphabet)
   F [ ] BufferedDatabaseWriter writeAlphabetCounts()
