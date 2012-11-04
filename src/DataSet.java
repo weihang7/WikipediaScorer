@@ -17,6 +17,10 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
  */
 public class DataSet {
   private File database;
+  private File goodWiki;
+  private File badWiki;
+  private File goodTokens;
+  private File badTokens;
 
   public void execute(String[] commands, File file) throws ClassNotFoundException{
     Class.forName("org.sqlite.JDBC");
@@ -53,8 +57,43 @@ public class DataSet {
     }
   }
   
-  public static void insert(String key, Double value){
-    
+  private class WordReader implements Enumeration<String> {
+    StringReader r;
+    public WordReader(File f) {
+      this.r = new StringReader(new BufferedInputStream(new FileInputStream(f)));
+    }
+    public String nextElement() {
+      String s = "";
+      char c;
+      while ((c = r.read()) != ' ') {
+        s += c;
+      }
+      return s;
+    }
+    public boolean hasMoreElements() {
+      return r.ready();
+    }
+  }
+
+  private class TokenReader implements Enumeration<Integer> {
+    WordReader r;
+    public TokenReader(File f) {
+      this.r = new WordReader(f);
+    }
+    public Integer nextElement() {
+      return new Integer(r.read());
+    }
+    public boolean hasMoreElements() {
+      return r.hasMoreElements();
+    }
+  }
+
+  public Enumeration<String> readWiki(boolean which) {
+    return new WordReader((which ? goodWiki : badWiki));
+  }
+  
+  public Enumeration<Integer> readTokens(boolean which) {
+    return new TokenReader((which ? goodTokens : badTokens));
   }
   
   public static void append(String file, String value){
@@ -123,7 +162,7 @@ public class DataSet {
   }
   
   //Reading from a text file
-  public static String readFromText(File txtfile){
+  private static String readFromText(File txtfile){
     String text="";
     try {
       FileReader fr=new FileReader(txtfile);
@@ -139,7 +178,7 @@ public class DataSet {
      return text;
   }
   
-  public static void overwriteString(String stringToWrite, String path){
+  private static void overwriteString(String stringToWrite, String path){
     try{
       FileWriter fr = new FileWriter(path);
       BufferedWriter br = new BufferedWriter(fr);
