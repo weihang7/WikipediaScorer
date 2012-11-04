@@ -1,25 +1,50 @@
 import javax.swing.*;
-import java.awt.*;
 public class MasterGUI extends JFrame {
-	private JFrame frame;
-	 public JFrame createGUI(){
-		 frame = new JFrame("MasterGUI");
-		 return frame;
-	 }
-	 public JPanel makeTopPanel(){
-		 JPanel topPanel= new JPanel();
-	 }
-	 public JPanel makeMiddlePanel(){
-		 JPanel middlePanel = new JPanel();
-	 }
-	 public JPanel makeBottomPanel(){
-		 JPanel bottomPanel = new JPanel();
-	 }
-	 public static void main(String [] args){
-		 MasterGUI gui=new MasterGUI();
-		 gui.createGUI();
-	 }
+
+  public JPanel makeTopPanel(){
+    JPanel topPanel= new JPanel();
+    
+    JLabel pages = new JLabel("Number of Pages to Fetch");
+    topPanel.add(pages);
+    
+    JTextField addInput = new JTextField(5);
+    topPanel.add(addInput);
+    
+    return topPanel;
+  }
+  
+  public JPanel makeMiddlePanel(){
+    JPanel middlePanel = new JPanel();
+
+    JLabel test = new JLabel("TEST TEST TEST");
+    middlePanel.add(test);
+
+    return middlePanel;
+  }
+  
+  public JPanel makeBottomPanel(){
+    JPanel bottomPanel = new JPanel();
+    return bottomPanel;
+  }
+  
+  public JPanel makeFinalPanel(){
+    JPanel finalPanel = new JPanel();
+    return finalPanel;
+  }
+
+  public MasterGUI(){
+    content = new JPanel();
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setSize(630,400);
+    content.add(makeTopPanel());
+    content.add(makeMiddlePanel());
+    content.add(makeBottomPanel());
+    content.add(makeFinalPanel());
+    setContentPane(content);
+  }
+
+  public static void main(String [] args){
+    MasterGUI gui = new MasterGUI();
+    gui.setVisible(true);
+  }
 }
-	
-
-
