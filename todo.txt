@@ -12,6 +12,7 @@ DataSet:
   (alphabet)
   F [ ] BufferedDatabaseWriter writeAlphabetCounts()
   F [ ] String[] getBestAlphabet(int n)
+  F [ ] void finalizeAlphabet(String[] alphabet) #note: this should just store (alphabet) in some format on the hard drive somewhere. Doesn't matter where or what format; you can just space delimit it.
 
   (counts)
   F [ ] void add(boolean which, double[][] new)
@@ -34,8 +35,8 @@ Fetcher:
 
 Tokenizer:
   A [X] String[] tokenize(String document)
-  F [ ] AlphabetCount countForAlphabet(String[] document)
-  A [X] int[] stripAlphabet(String[] document)
+  F [X] void countForAlphabet(Enumeration<String> document, BufferedDatabaseWriter output)
+  A [X] void stripTokens(Enumeration<String> document, StringWriter output, String[] alphabet)
 
 Counter:
   A [X] double[][] count(Enumeration<Integer> document, int alphabetSize)

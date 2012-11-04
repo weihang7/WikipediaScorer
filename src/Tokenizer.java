@@ -32,7 +32,7 @@ public class Tokenizer {
     return tokens;
   }
   
-  public static int[] stripTokens(Enumeration<String> input, StringWriter output) {
+  public static void stripTokens(Enumeration<String> input, StringWriter output, String[] alphabet) {
     /*
      * Given a string of tokens (text), and an
      * alphabet (alphabet), return (text) with every word
@@ -43,17 +43,16 @@ public class Tokenizer {
       token = input.nextElement();
       for (int x = 0; x < alphabet.length; x += 1) {
         if (token == alphabet[x]) {
-          output.append(Integer.toString(x + 1));
+          output.append(Integer.toString(x + 1) + (input.hasMoreElements() ? " " : ""));
         }
       }
     }
   }
 
-  public AlphabetCount countForAlphabet(String[] document){
-    AlphabetCount ret = new AlphabetCount();
-    for(int i = 0; i < document.length; i += 1){
-      ret.add(document[i], 1);
+  public void countForAlphabet(BufferedDatabaseWriter writer, Enumeration<String> document){
+    for (; document.hasMoreElements();) {
+      writer.add(document.getNextElement(), 1);
     }
-    return ret;
+    writer.flush();
   }
 }
