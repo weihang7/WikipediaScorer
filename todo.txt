@@ -2,22 +2,30 @@ AlphabetCount:
   R [X] int get(string token)
   R [X] void add(string token, int num)
 
+BufferedDatabaseWriter:
+  F [ ] void add(String key, double value)
+  F [ ] void flush()
+
 DataSet:
   F [ ] new DataSet(String baseFileName)
   
   (alphabet)
-  F [ ] void addAlphabetCount(AlphabetCount new)
-  F [ ] AlphabetCount getAlphabetCount()
+  F [ ] BufferedDatabaseWriter writeAlphabetCounts()
+  F [ ] String[] getBestAlphabet(int n)
 
-  (tokens)
+  (counts)
   F [ ] void add(boolean which, double[][] new)
-  F [ ] double lookup(boolean which, int token_a, int token_b)
+# F [ ] double lookup(boolean which, int token_a, int token_b)
   F [ ] Enumeration<double[]> enumerate()
   F [ ] double[][] loadAll(boolean which)
 
-  (files)
-  F [X] void append(String file, String value)
-  F [X] BufferedStringStream loadStringStream(String file)
+  (local wiki)
+  F [ ] Enumeration<String> readWiki(boolean which)
+  F [ ] StringWriter writeWiki(boolean which)
+
+  (token strings)
+  F [ ] Enumeration<Integer> readTokens(boolean which)
+  F [ ] StringWriter writeTokens(boolean which)
 
 Fetcher:
   A [X] new Fetcher()
@@ -30,14 +38,12 @@ Tokenizer:
   A [X] int[] stripAlphabet(String[] document)
 
 Counter:
-  A [X] new Counter(int alphabetSize)
-  A [X] void add(int[] document)
-  A [X] double[][] finalize()
+  A [X] double[][] count(Enumeration<Integer> document, int alphabetSize)
 
 Smoother:
-  A [X] Count smooth(Count a, Count b)
+  A [X] Count smooth(double[][] a, double[][] b)
 
 Scorer:
-  A [ ] new Scorer(DataSet data)
-  A [ ] double score(int[] input)
+  A [X] new Scorer(DataSet data)
+  A [X] double score(int[] input)
 

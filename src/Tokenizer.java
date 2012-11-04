@@ -32,29 +32,26 @@ public class Tokenizer {
     return tokens;
   }
   
-  public static int[] stripTokens(String[] text, String[] alphabet) {
+  public static int[] stripTokens(Enumeration<String> input, StringWriter output) {
     /*
      * Given a string of tokens (text), and an
      * alphabet (alphabet), return (text) with every word
      * not in (alphabet) replaced with "*."
      */
     
-    int[] stripped = new int[text.length];
-
-    for (int i = 0; i < text.length; i += 1) {
+    for (; input.hasMoreElements(); ) {
+      token = input.nextElement();
       for (int x = 0; x < alphabet.length; x += 1) {
-        if (text[i] == alphabet[x]) {
-          stripped[i] = x + 1;
+        if (token == alphabet[x]) {
+          output.append(Integer.toString(x + 1));
         }
       }
     }
-    
-    return stripped;
   }
 
   public AlphabetCount countForAlphabet(String[] document){
     AlphabetCount ret = new AlphabetCount();
-    for(int i=0;i<document.length;i++){
+    for(int i = 0; i < document.length; i += 1){
       ret.add(document[i], 1);
     }
     return ret;
