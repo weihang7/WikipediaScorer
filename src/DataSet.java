@@ -1,14 +1,22 @@
-import java.sql.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Hashtable;
-import java.io.*;
 
 import javax.swing.JOptionPane;
 
-import org.apache.poi.hwpf.extractor.*;
-import org.apache.poi.hwpf.*;
-
-import org.apache.poi.xwpf.*;
-import org.apache.poi.xwpf.extractor.*;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 /**
@@ -18,11 +26,11 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 public class DataSet {
   private File database;
 
-  public void execute(String[] commands, File file) throws ClassNotFoundException{
+  public void execute(String[] commands) throws ClassNotFoundException{
     Class.forName("org.sqlite.JDBC");
     Connection connection = null;
     try{
-      connection = DriverManager.getConnection("jdbc:sqlite:"+file.getAbsolutePath());
+      connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
       Statement statement = connection.createStatement();
       for (int i=0;i<commands.length;i++)
         statement.executeUpdate(commands[i]);
@@ -42,13 +50,14 @@ public class DataSet {
     }
   }
   
-  public void createTable(Hashtable table,File file,String name){
+  public void createTable(String name,Class[] types){
     String[] commandsToExecute = new String[2];
     commandsToExecute[0] = "drop table if exists "+name;
     commandsToExecute[1] = "create table "+name; 
     try {
-      execute(commandsToExecute,file);
-    } catch (ClassNotFoundException e) {
+      execute(commandsToExecute);
+    } 
+    catch (ClassNotFoundException e) {
       e.printStackTrace();
     }
   }

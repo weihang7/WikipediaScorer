@@ -166,6 +166,7 @@ public class WikiGUI extends JPanel
         fileInUse = new File("zero");
         fileNameLabel = new JLabel("");
         fileNameLabel.setVisible(false);
+        p.add(l);
         p.add(ioButton);
         p.add(fileNameLabel);
         return p;
@@ -227,7 +228,7 @@ public class WikiGUI extends JPanel
     //Main Method
     public static void main( String[] args )
     {
-    	Hashtable<String, Count> loaded = JSON.parseAll(ReadandWrite.readFromTxt(new File("probs.json")));
+    	Hashtable<String, Count> loaded = JSON.parseAll(DataSet.readFromText(new File("probs.json")));
     	Count all = loaded.get("all");
     	Count good = loaded.get("good");
         WikiGUI app = new WikiGUI(all, good);
