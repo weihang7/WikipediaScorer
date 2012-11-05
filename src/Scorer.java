@@ -37,6 +37,6 @@ class Scorer {
       goodProbability = 0;
     }
     
-    return Math.pow(Math.E, goodProbability) / (Math.pow(Math.E, goodProbability) + Math.pow(Math.E, badProbability))
+    return Math.pow(Math.E, goodProbability) / (Math.pow(Math.E, goodProbability) + Math.pow(Math.E, badProbability));
   }
 }
