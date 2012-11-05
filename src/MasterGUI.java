@@ -1,5 +1,6 @@
 import javax.swing.*;
 public class MasterGUI extends JFrame {
+  private static final long serialVersionUID = -2918480137245589300L;
 
   public JPanel makeTopPanel(){
     JPanel topPanel= new JPanel();
@@ -33,7 +34,7 @@ public class MasterGUI extends JFrame {
   }
 
   public MasterGUI(){
-    content = new JPanel();
+    JPanel content = new JPanel();
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setSize(630,400);
     content.add(makeTopPanel());

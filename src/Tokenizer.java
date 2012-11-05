@@ -2,6 +2,9 @@
  * @author David Anthony Bau
  */
 
+import java.io.Writer;
+import java.util.Enumeration;
+
 import info.bliki.wiki.filter.*;
 import info.bliki.wiki.model.*;
 
@@ -32,7 +35,7 @@ public class Tokenizer {
     return tokens;
   }
   
-  public static void stripTokens(Enumeration<String> input, StringWriter output, String[] alphabet) {
+  public static void stripTokens(Enumeration<String> input, Writer output, String[] alphabet) {
     /*
      * Given a string of tokens (text), and an
      * alphabet (alphabet), return (text) with every word
@@ -40,10 +43,15 @@ public class Tokenizer {
      */
     
     for (; input.hasMoreElements(); ) {
-      token = input.nextElement();
+      String token = input.nextElement();
       for (int x = 0; x < alphabet.length; x += 1) {
         if (token == alphabet[x]) {
-          output.append(Integer.toString(x + 1) + (input.hasMoreElements() ? " " : ""));
+          try {
+           output.write(Integer.toString(x + 1) + (input.hasMoreElements() ? " " : "")); 
+          }
+          catch (Exception e) {
+            e.printStackTrace();
+          }
         }
       }
     }
@@ -51,7 +59,7 @@ public class Tokenizer {
 
   public void countForAlphabet(BufferedDatabaseWriter writer, Enumeration<String> document){
     for (; document.hasMoreElements();) {
-      writer.add(document.getNextElement(), 1);
+      writer.add(document.nextElement(), 1);
     }
     writer.flush();
   }
