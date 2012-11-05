@@ -3,13 +3,16 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.swing.JOptionPane;
@@ -20,7 +23,7 @@ import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 /**
- * @author weihangfan
+ * @author Weihang Fan
  *
  */
 public class DataSet {
@@ -30,6 +33,10 @@ public class DataSet {
   private File goodTokens;
   private File badTokens;
 
+  public DataSet(String baseFilePath){
+	  database = new File(baseFilePath);
+  }
+  
   public void execute(String[] commands) throws ClassNotFoundException{
     Class.forName("org.sqlite.JDBC");
     Connection connection = null;
@@ -54,10 +61,14 @@ public class DataSet {
     }
   }
   
-  public void createTable(String name,Class[] types){
+  public void createTable(String name,double[][] cells){
     String[] commandsToExecute = new String[2];
     commandsToExecute[0] = "drop table if exists "+name;
-    commandsToExecute[1] = "create table "+name; 
+    commandsToExecute[1] = "create table "+name+" ("; 
+    for (int i=0;i<cells.length;i++){
+    	commandsToExecute[1]+=i+" double"+(i==cells.length-1?"":",");
+    }
+    commandsToExecute[1]+=")";
     try {
       execute(commandsToExecute);
     } 
@@ -69,18 +80,34 @@ public class DataSet {
   private class WordReader implements Enumeration<String> {
     StringReader r;
     public WordReader(File f) {
-      this.r = new StringReader(new BufferedInputStream(new FileInputStream(f)));
+      try {
+		this.r = new StringReader(new BufferedInputStream(new FileInputStream(f)).toString());
+	} catch (FileNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     }
     public String nextElement() {
       String s = "";
       char c;
-      while ((c = r.read()) != ' ') {
-        s += c;
-      }
+      try {
+		while ((c = (char) r.read()) != ' ') {
+		    s += c;
+		  }
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
       return s;
     }
     public boolean hasMoreElements() {
-      return r.ready();
+		try {
+			return r.ready();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
     }
   }
 
@@ -90,7 +117,7 @@ public class DataSet {
       this.r = new WordReader(f);
     }
     public Integer nextElement() {
-      return new Integer(r.read());
+      return new Integer(r.nextElement());
     }
     public boolean hasMoreElements() {
       return r.hasMoreElements();
@@ -197,5 +224,13 @@ public class DataSet {
     catch(Exception ex){
       ex.printStackTrace();
     }
+  }
+  
+  public static void main(String[] args){
+	  DataSet db = new DataSet("db.db");
+	  double[] firstcell = {0.1,0.8,5.3};
+	  double[] secondcell = {0.5,0.6,2.3};
+	  double[][] cells = {firstcell,secondcell};
+	  db.createTable("test",cells);
   }
 }
