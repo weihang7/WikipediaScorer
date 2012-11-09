@@ -57,7 +57,7 @@ public class Tokenizer {
     }
   }
 
-  public void countForAlphabet(BufferedDatabaseWriter writer, Enumeration<String> document){
+  public void countForAlphabet(DataSet writer, Enumeration<String> document){
     for (; document.hasMoreElements();) {
       writer.add(document.nextElement(), 1);
     }

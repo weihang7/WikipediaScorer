@@ -38,12 +38,12 @@ public class DataSet {
 
   // Define the constructor, which takes the path of the file in String.
   public DataSet(String baseFilePath){
-	  database = new File(baseFilePath);
+    database = new File(baseFilePath);
   }
   
   // Define the function that executes the commands to the database field.
   public void execute(String[] commands) throws ClassNotFoundException{
-	  
+    
     Class.forName("org.sqlite.JDBC");
     Connection connection = null;
     
@@ -54,7 +54,7 @@ public class DataSet {
         statement.executeUpdate(commands[i]);
     }
     catch(SQLException e){
-    	e.printStackTrace();
+      e.printStackTrace();
     }
     finally{
       try{
@@ -63,7 +63,7 @@ public class DataSet {
         }
       }
       catch(SQLException e){
-    	System.err.println(e);
+      System.err.println(e);
       }
     }
   }
@@ -73,7 +73,7 @@ public class DataSet {
     commandsToExecute[0] = "DROP TABLE if exists "+name;
     commandsToExecute[1] = "CREATE TABLE "+name+" ("; 
     for (int i=0;i<cells[0].length;i++){
-    	commandsToExecute[1]+="\""+i+"\""+ " DOUBLE"+(i==cells[0].length-1?"":",");
+      commandsToExecute[1]+="\""+i+"\""+ " DOUBLE"+(i==cells[0].length-1?"":",");
     }
     commandsToExecute[1]+=")";
     try {
@@ -83,80 +83,80 @@ public class DataSet {
       e.printStackTrace();
     }
     for(int i=0;i<cells.length;i++){
-		insert("test",cells[i]);
+    insert("test",cells[i]);
     }
   }
   
   public void insert(String table,double[] element){
-	  String[] commandsToExecute = new String[1];
-	  commandsToExecute[0]="insert into "+table+" (";
-	  for(int i=0;i<element.length;i++){
-		  commandsToExecute[0]+="\""+i+"\""+(i==element.length-1?"":",");
-	  }
-	  commandsToExecute[0]+=") values (";
-	  for(int i=0;i<element.length;i++){
-		  commandsToExecute[0]+=element[i]+(i==element.length-1?"":",");
-	  }
-	  commandsToExecute[0]+=")";
-	  System.out.println(commandsToExecute[0]);
-	  try{
-		  execute(commandsToExecute);
-	  }
-	  catch(Exception e){
-		  e.printStackTrace();
-	  }
+    String[] commandsToExecute = new String[1];
+    commandsToExecute[0]="insert into "+table+" (";
+    for(int i=0;i<element.length;i++){
+      commandsToExecute[0]+="\""+i+"\""+(i==element.length-1?"":",");
+    }
+    commandsToExecute[0]+=") values (";
+    for(int i=0;i<element.length;i++){
+      commandsToExecute[0]+=element[i]+(i==element.length-1?"":",");
+    }
+    commandsToExecute[0]+=")";
+    System.out.println(commandsToExecute[0]);
+    try{
+      execute(commandsToExecute);
+    }
+    catch(Exception e){
+      e.printStackTrace();
+    }
   }
   
   public double[][] loadAll() throws Exception{
-	Class.forName("org.sqlite.JDBC");
-	Connection connection = null;
-	connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
-	Statement statement = connection.createStatement();
-	ResultSet wholeTable = statement.executeQuery("select * from test");	
-	ResultSetMetaData rsmd = wholeTable.getMetaData();
-	int numberOfColumns = rsmd.getColumnCount();
-	ArrayList<double[]> ret = new ArrayList<double[]>();
-	double[] currentArray = new double[numberOfColumns];
-	while(wholeTable.next()){
-	  currentArray = new double[numberOfColumns];
-	  for(int i=1;i<=numberOfColumns;i++){
-		currentArray[i-1] = wholeTable.getDouble(i);
-	  }
-	  ret.add(currentArray);
-	}
-	connection.close();
-	wholeTable.close();
-	return ret.toArray(new double[numberOfColumns][ret.size()]);
+  Class.forName("org.sqlite.JDBC");
+  Connection connection = null;
+  connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
+  Statement statement = connection.createStatement();
+  ResultSet wholeTable = statement.executeQuery("select * from test");  
+  ResultSetMetaData rsmd = wholeTable.getMetaData();
+  int numberOfColumns = rsmd.getColumnCount();
+  ArrayList<double[]> ret = new ArrayList<double[]>();
+  double[] currentArray = new double[numberOfColumns];
+  while(wholeTable.next()){
+    currentArray = new double[numberOfColumns];
+    for(int i=1;i<=numberOfColumns;i++){
+    currentArray[i-1] = wholeTable.getDouble(i);
+    }
+    ret.add(currentArray);
+  }
+  connection.close();
+  wholeTable.close();
+  return ret.toArray(new double[ret.size()][numberOfColumns]);
   }
   
   private class WordReader implements Enumeration<String> {
     StringReader r;
     public WordReader(File f) {
       try {
-		this.r = new StringReader(new BufferedInputStream(new FileInputStream(f)).toString());
-	} catch (FileNotFoundException e) {
-		e.printStackTrace();
-	}
+    this.r = new StringReader(new BufferedInputStream(new FileInputStream(f)).toString());
+  } catch (FileNotFoundException e) {
+    e.printStackTrace();
+  }
     }
     public String nextElement() {
       String s = "";
       char c;
       try {
-		while ((c = (char) r.read()) != ' ') {
-		    s += c;
-		  }
-	} catch (IOException e) {
-		e.printStackTrace();
-	}
+    while ((c = (char) r.read()) != ' ') {
+        s += c;
+      }
+  } catch (IOException e) {
+    e.printStackTrace();
+  }
       return s;
     }
     public boolean hasMoreElements() {
-		try {
-			return r.ready();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
+    try {
+      return r.ready();
+    } catch (IOException e) {
+      e.printStackTrace();
+      return false;
+    }
     }
   }
 
@@ -182,9 +182,9 @@ public class DataSet {
   }
   
   public void finalizeAlphabet(String[] alphabet){
-	  for(int i=0;i<alphabet.length;i++){
-		  append("alphabet",alphabet[i]);
-	  }
+    for(int i=0;i<alphabet.length;i++){
+      append("alphabet",alphabet[i]);
+    }
   }
   
   public static void append(String file, String value){
@@ -203,15 +203,15 @@ public class DataSet {
   }
   
   public static void overwrite(String stringToWrite, String path){
-	    try{
-	      FileWriter fr = new FileWriter(path);
-	      BufferedWriter br = new BufferedWriter(fr);
-	      br.write(stringToWrite);
-	      br.close();
-	    }
-	    catch(Exception ex){
-	      ex.printStackTrace();
-	    }
+      try{
+        FileWriter fr = new FileWriter(path);
+        BufferedWriter br = new BufferedWriter(fr);
+        br.write(stringToWrite);
+        br.close();
+      }
+      catch(Exception ex){
+        ex.printStackTrace();
+      }
   }
   
   public static BufferedInputStream loadStringStream(String file) throws IOException{
