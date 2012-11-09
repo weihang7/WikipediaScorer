@@ -68,12 +68,13 @@ public class DataSet {
     }
   }
   
-  public void createTable(String name,double[][] cells){
+  public void createTable(String name,double[][] cells,String type){
     String[] commandsToExecute = new String[2];
     commandsToExecute[0] = "DROP TABLE if exists "+name;
-    commandsToExecute[1] = "CREATE TABLE "+name+" ("; 
+    commandsToExecute[1] = "CREATE TABLE "+name+" (";
+    commandsToExecute[1] += "word integer";
     for (int i=0;i<cells[0].length;i++){
-      commandsToExecute[1]+="\""+i+"\""+ " DOUBLE"+(i==cells[0].length-1?"":",");
+      commandsToExecute[1]+="\""+i+"\""+ " "+type+(i==cells[0].length-1?"":",");
     }
     commandsToExecute[1]+=")";
     try {
@@ -83,17 +84,19 @@ public class DataSet {
       e.printStackTrace();
     }
     for(int i=0;i<cells.length;i++){
-    insert("test",cells[i]);
+    	insert("test",cells[i],i);
     }
   }
   
-  public void insert(String table,double[] element){
+  public void insert(String table,double[] element,int index){
     String[] commandsToExecute = new String[1];
     commandsToExecute[0]="insert into "+table+" (";
+    commandsToExecute[0]+="word,";
     for(int i=0;i<element.length;i++){
       commandsToExecute[0]+="\""+i+"\""+(i==element.length-1?"":",");
     }
     commandsToExecute[0]+=") values (";
+    commandsToExecute[0]+=index+",";
     for(int i=0;i<element.length;i++){
       commandsToExecute[0]+=element[i]+(i==element.length-1?"":",");
     }
@@ -107,26 +110,26 @@ public class DataSet {
     }
   }
   
-  public double[][] loadAll() throws Exception{
-  Class.forName("org.sqlite.JDBC");
-  Connection connection = null;
-  connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
-  Statement statement = connection.createStatement();
-  ResultSet wholeTable = statement.executeQuery("select * from test");  
-  ResultSetMetaData rsmd = wholeTable.getMetaData();
-  int numberOfColumns = rsmd.getColumnCount();
-  ArrayList<double[]> ret = new ArrayList<double[]>();
-  double[] currentArray = new double[numberOfColumns];
-  while(wholeTable.next()){
-    currentArray = new double[numberOfColumns];
-    for(int i=1;i<=numberOfColumns;i++){
-    currentArray[i-1] = wholeTable.getDouble(i);
+  public double[][] loadAll(boolean isGood) throws Exception{
+    Class.forName("org.sqlite.JDBC");
+    Connection connection = null;
+    connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
+    Statement statement = connection.createStatement();
+    ResultSet wholeTable = statement.executeQuery("select * from "+(isGood?"good":"bad")+" order by word");  
+    ResultSetMetaData rsmd = wholeTable.getMetaData();
+    int numberOfColumns = rsmd.getColumnCount();
+    ArrayList<double[]> ret = new ArrayList<double[]>();
+    double[] currentArray = new double[numberOfColumns];
+    while(wholeTable.next()){
+      currentArray = new double[numberOfColumns];
+      for(int i=1;i<=numberOfColumns;i++){
+        currentArray[i-1] = wholeTable.getDouble(i);
+      }
+      ret.add(currentArray);
     }
-    ret.add(currentArray);
-  }
-  connection.close();
-  wholeTable.close();
-  return ret.toArray(new double[ret.size()][numberOfColumns]);
+    connection.close();
+    wholeTable.close();
+    return ret.toArray(new double[ret.size()][numberOfColumns]);
   }
   
   private class WordReader implements Enumeration<String> {
