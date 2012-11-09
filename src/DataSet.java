@@ -11,8 +11,10 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Enumeration;
 
 import javax.swing.JOptionPane;
@@ -27,19 +29,24 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
  *
  */
 public class DataSet {
+  // Field declarations
   private File database;
   private File goodWiki;
   private File badWiki;
   private File goodTokens;
   private File badTokens;
 
+  // Define the constructor, which takes the path of the file in String.
   public DataSet(String baseFilePath){
 	  database = new File(baseFilePath);
   }
   
+  // Define the function that executes the commands to the database field.
   public void execute(String[] commands) throws ClassNotFoundException{
+	  
     Class.forName("org.sqlite.JDBC");
     Connection connection = null;
+    
     try{
       connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
       Statement statement = connection.createStatement();
@@ -59,16 +66,6 @@ public class DataSet {
     	System.err.println(e);
       }
     }
-  }
-  
-  public ResultSet executeQuery(String query) throws Exception{
-	Class.forName("org.sqlite.JDBC");
-	Connection connection = null;
-	connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
-	Statement statement = connection.createStatement();
-	ResultSet ret = statement.executeQuery(query);
-	connection.close();
-	return ret;
   }
   
   public void createTable(String name,double[][] cells){
@@ -110,8 +107,26 @@ public class DataSet {
 	  }
   }
   
-  public double[][] loadAll(){
-	  
+  public double[][] loadAll() throws Exception{
+	Class.forName("org.sqlite.JDBC");
+	Connection connection = null;
+	connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
+	Statement statement = connection.createStatement();
+	ResultSet wholeTable = statement.executeQuery("select * from test");	
+	ResultSetMetaData rsmd = wholeTable.getMetaData();
+	int numberOfColumns = rsmd.getColumnCount();
+	ArrayList<double[]> ret = new ArrayList<double[]>();
+	double[] currentArray = new double[numberOfColumns];
+	while(wholeTable.next()){
+	  currentArray = new double[numberOfColumns];
+	  for(int i=1;i<=numberOfColumns;i++){
+		currentArray[i-1] = wholeTable.getDouble(i);
+	  }
+	  ret.add(currentArray);
+	}
+	connection.close();
+	wholeTable.close();
+	return ret.toArray(new double[numberOfColumns][ret.size()]);
   }
   
   private class WordReader implements Enumeration<String> {
@@ -120,7 +135,6 @@ public class DataSet {
       try {
 		this.r = new StringReader(new BufferedInputStream(new FileInputStream(f)).toString());
 	} catch (FileNotFoundException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
     }
@@ -132,7 +146,6 @@ public class DataSet {
 		    s += c;
 		  }
 	} catch (IOException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
       return s;
@@ -141,7 +154,6 @@ public class DataSet {
 		try {
 			return r.ready();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
@@ -188,6 +200,18 @@ public class DataSet {
       //Catch exception if any
       System.err.println("Error: " + e.getMessage());
     }
+  }
+  
+  public static void overwrite(String stringToWrite, String path){
+	    try{
+	      FileWriter fr = new FileWriter(path);
+	      BufferedWriter br = new BufferedWriter(fr);
+	      br.write(stringToWrite);
+	      br.close();
+	    }
+	    catch(Exception ex){
+	      ex.printStackTrace();
+	    }
   }
   
   public static BufferedInputStream loadStringStream(String file) throws IOException{
@@ -241,7 +265,7 @@ public class DataSet {
   }
   
   //Reading from a text file
-  private static String readFromText(File txtfile){
+  public static String readFromText(File txtfile){
     String text="";
     try {
       FileReader fr=new FileReader(txtfile);
@@ -255,25 +279,5 @@ public class DataSet {
        ex.printStackTrace();
      }
      return text;
-  }
-  
-  private static void overwriteString(String stringToWrite, String path){
-    try{
-      FileWriter fr = new FileWriter(path);
-      BufferedWriter br = new BufferedWriter(fr);
-      br.write(stringToWrite);
-      br.close();
-    }
-    catch(Exception ex){
-      ex.printStackTrace();
-    }
-  }
-  
-  public static void main(String[] args){
-	  DataSet t = new DataSet("db.db");
-	  double[] a = {0.3,0.6,3.7};
-	  double[] b = {52.4,6.3,2.4};
-	  double[][] c = {a,b};
-	  t.createTable("test",c);
   }
 }
