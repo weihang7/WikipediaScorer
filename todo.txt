@@ -21,12 +21,12 @@ DataSet:
   F [ ] double[][] loadAll(boolean which)
 
   (local wiki)
-  F [ ] Enumeration<String> readWiki(boolean which)
-  F [ ] StringWriter writeWiki(boolean which)
+  F [X] Enumeration<String> readWiki(boolean which)
+  F [X] StringWriter writeWiki(boolean which)
 
   (token strings)
-  F [ ] Enumeration<Integer> readTokens(boolean which)
-  F [ ] StringWriter writeTokens(boolean which)
+  F [X] Enumeration<Integer> readTokens(boolean which)
+  F [X] StringWriter writeTokens(boolean which)
 
 Fetcher:
   A [X] new Fetcher()

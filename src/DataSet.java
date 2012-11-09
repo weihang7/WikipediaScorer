@@ -10,10 +10,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Enumeration;
-import java.util.Hashtable;
 
 import javax.swing.JOptionPane;
 
@@ -47,7 +47,7 @@ public class DataSet {
         statement.executeUpdate(commands[i]);
     }
     catch(SQLException e){
-      System.err.println(e.getMessage());
+    	e.printStackTrace();
     }
     finally{
       try{
@@ -56,25 +56,62 @@ public class DataSet {
         }
       }
       catch(SQLException e){
-        System.err.println(e);
+    	System.err.println(e);
       }
     }
   }
   
+  public ResultSet executeQuery(String query) throws Exception{
+	Class.forName("org.sqlite.JDBC");
+	Connection connection = null;
+	connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
+	Statement statement = connection.createStatement();
+	ResultSet ret = statement.executeQuery(query);
+	connection.close();
+	return ret;
+  }
+  
   public void createTable(String name,double[][] cells){
     String[] commandsToExecute = new String[2];
-    commandsToExecute[0] = "drop table if exists "+name;
-    commandsToExecute[1] = "create table "+name+" ("; 
-    for (int i=0;i<cells.length;i++){
-    	commandsToExecute[1]+=i+" double"+(i==cells.length-1?"":",");
+    commandsToExecute[0] = "DROP TABLE if exists "+name;
+    commandsToExecute[1] = "CREATE TABLE "+name+" ("; 
+    for (int i=0;i<cells[0].length;i++){
+    	commandsToExecute[1]+="\""+i+"\""+ " DOUBLE"+(i==cells[0].length-1?"":",");
     }
     commandsToExecute[1]+=")";
     try {
       execute(commandsToExecute);
     } 
-    catch (ClassNotFoundException e) {
+    catch (Exception e) {
       e.printStackTrace();
     }
+    for(int i=0;i<cells.length;i++){
+		insert("test",cells[i]);
+    }
+  }
+  
+  public void insert(String table,double[] element){
+	  String[] commandsToExecute = new String[1];
+	  commandsToExecute[0]="insert into "+table+" (";
+	  for(int i=0;i<element.length;i++){
+		  commandsToExecute[0]+="\""+i+"\""+(i==element.length-1?"":",");
+	  }
+	  commandsToExecute[0]+=") values (";
+	  for(int i=0;i<element.length;i++){
+		  commandsToExecute[0]+=element[i]+(i==element.length-1?"":",");
+	  }
+	  commandsToExecute[0]+=")";
+	  System.out.println(commandsToExecute[0]);
+	  try{
+		  execute(commandsToExecute);
+	  }
+	  catch(Exception e){
+		  e.printStackTrace();
+	  }
+  }
+  
+  public double[][] loadAll(){
+	  
   }
   
   private class WordReader implements Enumeration<String> {
@@ -130,6 +167,12 @@ public class DataSet {
   
   public Enumeration<Integer> readTokens(boolean which) {
     return new TokenReader((which ? goodTokens : badTokens));
+  }
+  
+  public void finalizeAlphabet(String[] alphabet){
+	  for(int i=0;i<alphabet.length;i++){
+		  append("alphabet",alphabet[i]);
+	  }
   }
   
   public static void append(String file, String value){
@@ -227,10 +270,10 @@ public class DataSet {
   }
   
   public static void main(String[] args){
-	  DataSet db = new DataSet("db.db");
-	  double[] firstcell = {0.1,0.8,5.3};
-	  double[] secondcell = {0.5,0.6,2.3};
-	  double[][] cells = {firstcell,secondcell};
-	  db.createTable("test",cells);
+	  DataSet t = new DataSet("db.db");
+	  double[] a = {0.3,0.6,3.7};
+	  double[] b = {52.4,6.3,2.4};
+	  double[][] c = {a,b};
+	  t.createTable("test",c);
   }
 }
