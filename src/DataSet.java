@@ -29,13 +29,14 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
  *
  */
 public class DataSet {
-  // Field declarations
+  // Field declarations.
   private File database;
   private File goodWiki;
   private File badWiki;
   private File goodTokens;
   private File badTokens;
-
+  private Connection connection = null;
+  
   // Define the constructor, which takes the path of the file in String.
   public DataSet(String baseFilePath){
     database = new File(baseFilePath);
@@ -43,9 +44,8 @@ public class DataSet {
   
   // Define the function that executes the commands to the database field.
   public void execute(String[] commands) throws ClassNotFoundException{
-    
+    // Load the driver class object.
     Class.forName("org.sqlite.JDBC");
-    Connection connection = null;
     
     try{
       connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
@@ -68,7 +68,7 @@ public class DataSet {
     }
   }
   
-  public void createTable(String name,double[][] cells,String type){
+  public void createTable(String name,double[][] cells,String type) throws ClassNotFoundException{
     String[] commandsToExecute = new String[2];
     commandsToExecute[0] = "DROP TABLE if exists "+name;
     commandsToExecute[1] = "CREATE TABLE "+name+" (";
@@ -88,10 +88,11 @@ public class DataSet {
     }
   }
   
-  public void insert(String table,double[] element,int index){
+  public void insert(String table,double[] element,int index) throws ClassNotFoundException{
+    Class.forName("org.sqlite.JDBC");
     String[] commandsToExecute = new String[1];
     commandsToExecute[0]="insert into "+table+" (";
-    commandsToExecute[0]+="word,";
+    commandsToExecute[0]+="word integer,";
     for(int i=0;i<element.length;i++){
       commandsToExecute[0]+="\""+i+"\""+(i==element.length-1?"":",");
     }
@@ -110,9 +111,30 @@ public class DataSet {
     }
   }
   
+  public void add(boolean which,double[][] newElements) throws Exception{
+    Class.forName("org.sqlite.JDBC");
+    connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
+    Statement statement = connection.createStatement();
+    // TODO Anthony, use BufferedDatabaseReader.
+    String[] commandsToExecute = new String[1];
+    // TODO Anthony, use BufferedDatabaseWriter.
+  }
+  
+  public double lookup(boolean which,int token_a,int token_b) throws Exception{
+    Class.forName("org.sqlite.JDBC");
+    connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
+    Statement statement = connection.createStatement();
+    ResultSet theColumn = statement.executeQuery("select "+"\""+token_b+"\""+" from "+(which?"good":"bad")+" order by word");
+    while(theColumn.next()){
+      if(theColumn.getRow()==token_a){
+        return theColumn.getDouble(token_b);
+      }
+    }
+    return 0.0;
+  }
+  
   public double[][] loadAll(boolean isGood) throws Exception{
     Class.forName("org.sqlite.JDBC");
-    Connection connection = null;
     connection = DriverManager.getConnection("jdbc:sqlite:"+database.getAbsolutePath());
     Statement statement = connection.createStatement();
     ResultSet wholeTable = statement.executeQuery("select * from "+(isGood?"good":"bad")+" order by word");  
@@ -186,7 +208,7 @@ public class DataSet {
   
   public void finalizeAlphabet(String[] alphabet){
     for(int i=0;i<alphabet.length;i++){
-      append("alphabet",alphabet[i]);
+      append("alphabet",alphabet[i]+" ");
     }
   }
   
