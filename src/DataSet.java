@@ -59,6 +59,31 @@ class DataSet {
     }
   }
 
+  private class countEnumeration implements Enumeration<double[]> {
+    private ResultSet r;
+    private int c;
+
+    public countEnumeration(ResultSet r) {
+      this.r = r;
+      this.c = r.getMetaData().columnCount();
+    }
+
+    public double[] nextElement() {
+      r.next();
+      double[] r = new double[c - 1];
+      for (int i = 2; i <= c; i += 1) {
+        r[i - 2] = r.getDouble(i);
+      }
+      return r;
+    }
+
+    public boolean hasMoreElements() {
+      boolean rtn = r.next();
+      r.previous();
+      return rtn;
+    }
+  }
+
   public DataSet (String baseFilePath) {
     //Initialize all the files we link to.
     db = new File(baseFilePath + "_db");
@@ -143,12 +168,12 @@ class DataSet {
   }
 
   private double[][] selectCounts(String table, int[] indices) {
-    String commands = "SELECT * FROM " + table
+    String command = "SELECT * FROM " + table
                     + " WHERE name IN (";
 
     //Specify which rows we're selecting.
     for (int i = 0; i < indices.length; i += 1) {
-      commands += indices[i] + (i == indices.length ? ")" : ", ");
+      command += indices[i] + (i == indices.length ? ")" : ", ");
     }
     
     //Open our connection.
@@ -163,21 +188,81 @@ class DataSet {
     //Scroll to the first result.
 
     //See how many columns there are:
-    int len = result.getMetaData.getColumnCount();
-    double[][] r = new double[indices][len - 1];
+    double[][] r = new double[indices][result.getMetaData().columnCount() - 1];
     
     //Scroll through our results and put them into a big array of doubles.
     for (int i = 1; i <= indices.length; i += 1) {
      result.absolute(i);
-     for (int x = 1; x < len; x += 1) {
+     for (int x = 2; x <= r[i].length + 1; x += 1) {
        r[i][x] = result.getDouble(i);
      }
     }
 
+    connection.close();
+
     return r;
   }
 
+  public double[][] loadAll(boolean which) {
 
+    //Open a connection and make a statement from it.
+    Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dpath);
+    Statement statement = connection.createStatement();
+    
+    //Get the number of rows in our databse.
+    int rows = statment.executeUpdate("SELECT * FROM " + (which ? "good" : bad));
+    
+    //Actually select the rows into a ResultSet
+    ResultSet result = statement.executeQuery("SELECT * FROM " + (which ? "good" : "bad"));
+    
+    double[][] r = new double[rows][result.getMetaData().getColumnCount() - 1];
+
+    //Loop through our results and put them all into a big array.
+    for (int i = 0; result.next(); i += 1) {
+      for (int x = 2; x <= r[i].length + 1; x += 1) {
+        r[i][x] = result.getDouble(x + 1);
+      }
+    }
+
+    connection.close();
+
+    return r;
+  }
+
+  public double lookup (boolean which, int a, int b) {
+    Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dpath);
+    Statement statement = connection.createStatment();
+    ResultSet results = statement.executeQuery("SELECT " + b + " FROM " + (which ? "good" : "bad") + " WHERE name=" + a;
+    results.next();
+    double r = results.getDouble(results.findColumn(b));
+    connection.close();
+    return r;
+  }
+}
+  public void add(boolean which, double[][] add) {
+    //Open a connection and make a statement from it.
+    Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dpath);
+    Statement statement = connection.createStatement();
+    
+    //Get the number of rows in our databse.
+    int rows = statment.executeUpdate("SELECT * FROM " + (which ? "good" : bad));
+    
+    //Actually select the rows into a ResultSet
+    ResultSet result = statement.executeQuery("SELECT * FROM " + (which ? "good" : "bad"));
+    
+    //Update all the rows using our big array.
+    for (int i = 0; result.next(); i += 1) {
+      for (int x = 1; x <= add[i].length; x += 1) {
+        result.updateDouble(x, result.getDouble(x) + add[i][x]);
+      }
+    }
+
+    connection.close();
+  }
+
+  public Enumeration<double[]> enumerate(boolean which) {
+   
+  }
   //---------------------ALPHABET COUNT TABLES---------------------
   private void createAlphabetCountTable(String name) {
     //Execute this command.
