@@ -3,21 +3,22 @@ AlphabetCount:
   R [X] void add(string token, int num)
 
 BufferedDatabaseWriter:
-  F [ ] void add(String key, double value)
-  F [ ] void flush()
+  A [X] void add(String key, double value)
+  A [X] void flush()
 
 DataSet:
-  F [X] new DataSet(String baseFileName)
+  A [X] new DataSet(String baseFileName)
   
   (alphabet)
-  F [ ] BufferedDatabaseWriter writeAlphabetCounts()
-  F [ ] String[] getBestAlphabet(int n)
+  A [X] BufferedDatabaseWriter writeAlphabetCounts()
+  A [X] String[] getBestAlphabet(int n)
   F [X] void finalizeAlphabet(String[] alphabet) #note: this should just store (alphabet) in some format on the hard drive somewhere. Doesn't matter where or what format; you can just space delimit it.
 
   (counts)
   F [ ] void add(boolean which, double[][] new)
   F [ ] double lookup(int a, int b)
-  F [X] double[][] loadAll(boolean which)
+  F [ ] Enumeration<double[]> enumerate()
+  F [ ] double[][] loadAll(boolean which)
 
   (local wiki)
   F [X] Enumeration<String> readWiki(boolean which)

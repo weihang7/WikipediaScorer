@@ -267,4 +267,5 @@ class DataSet {
   
   public Enumeration<Integer> readTokens(boolean which) {
     return new TokenReader((which ? goodTokens : badTokens));
+  }
 }
