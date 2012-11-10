@@ -12,13 +12,12 @@ DataSet:
   (alphabet)
   F [ ] BufferedDatabaseWriter writeAlphabetCounts()
   F [ ] String[] getBestAlphabet(int n)
-  F [ ] void finalizeAlphabet(String[] alphabet) #note: this should just store (alphabet) in some format on the hard drive somewhere. Doesn't matter where or what format; you can just space delimit it.
+  F [X] void finalizeAlphabet(String[] alphabet) #note: this should just store (alphabet) in some format on the hard drive somewhere. Doesn't matter where or what format; you can just space delimit it.
 
   (counts)
   F [ ] void add(boolean which, double[][] new)
-# F [ ] double lookup(boolean which, int token_a, int token_b)
-  F [ ] Enumeration<double[]> enumerate()
-  F [ ] double[][] loadAll(boolean which)
+  F [ ] double lookup(int a, int b)
+  F [X] double[][] loadAll(boolean which)
 
   (local wiki)
   F [X] Enumeration<String> readWiki(boolean which)
