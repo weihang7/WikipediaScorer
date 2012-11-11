@@ -56,8 +56,24 @@ public class Tokenizer {
       }
     }
   }
+  
+  public static int[] stripTokens(String[] tokenArray, String[] alphabet){
+    int[] ret = new int[tokenArray.length];
+    for(int i=0;i<ret.length;i++){
+      for(int k=0;k<alphabet.length;k++){
+        if(tokenArray[i]==alphabet[k]){
+          ret[i]=k+1;
+        }
+        if(k==alphabet.length-1&&tokenArray[i]!=alphabet[k]){
+          ret[i]=0;
+        }
+      }
+    }
+    return ret;
+  }
 
   public void countForAlphabet(DataSet writer, Enumeration<String> document){
+    //TODO Anthony, are you sure you want a DataSet?
     for (; document.hasMoreElements();) {
       writer.add(document.nextElement(), 1);
     }

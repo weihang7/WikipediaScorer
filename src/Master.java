@@ -75,7 +75,7 @@ class Master {
 	
       //SMOOTHING:
       double[][] smoothGoodCounts = Smoother.smooth(goodCounts[0], goodCounts[1]);
-      double[][] smoothgBadCounts = Smoother.smooth(badCounts[0], badCounts[1]);
+      double[][] smoothBadCounts = Smoother.smooth(badCounts[0], badCounts[1]);
 	
       //Store smoothed counts:
       data.add(true, smoothGoodCounts);
