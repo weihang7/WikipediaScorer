@@ -10,13 +10,13 @@ DataSet:
   A [X] new DataSet(String baseFileName)
   
   (alphabet)
-  F [ ] void initAlphabet()
+  A [X] void initAlphabet()
   A [X] BufferedDatabaseWriter writeAlphabetCounts()
   A [X] String[] getBestAlphabet(int n)
   F [X] void finalizeAlphabet(String[] alphabet)
   
   (counts)
-  F [ ] void initCounts()
+  A [X] void initCounts(int alphabeSize)
   A [X] void add(boolean which, double[][] new)
   A [X] double lookup(boolean which, int a, int b)
   F [ ] Enumeration<double[]> enumerateRow(boolean which)

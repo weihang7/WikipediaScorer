@@ -114,8 +114,10 @@ class DataSet {
     tokens[1] = new File(baseFilePath + "_t_b");
   }
 
-  private void execute(String[] sql) throws SQLException {
+  private int[] execute(String[] sql) throws SQLException {
     //General method for executing non-SELECT sql statements.
+
+    int[] rtn = new int[sql.length];
 
     //Open a connection to our database.
     Connection connection = DriverManager.getConnection("jdbc:sqlite:"+dbPath);
@@ -125,11 +127,13 @@ class DataSet {
     
     //Execute the commands.
     for (int i = 0; i < sql.length; i += 1) {
-      statement.executeUpdate(sql[i]);
+      rtn[i] = statement.executeUpdate(sql[i]);
     }
     
     //Close the connection.
     connection.close();
+
+    return rtn;
   }
 
   //---------------------COUNT TABLES--------------------------
@@ -150,6 +154,25 @@ class DataSet {
 
     //Execute the commands.
     execute(commands);
+  }
+  
+  public void initCounts(int alphabetSize) {
+    //Check to see whether the tables exist already:
+    String[] commands = {
+      "SELECT name FROM sqlite_master"
+    + "WHERE type='table' AND name IN (bad, good)"
+    }
+    
+    if (execute(commands)[0] == 0) {
+      try {
+        //If they do, create them.
+        createCountTable("bad", alphabetSize);
+        createCountTable("good", alphabetSize);
+      }
+      catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   private void insertCount(String table, int index, double[] value) throws SQLException {
@@ -285,13 +308,26 @@ class DataSet {
     return null;
   }
   //---------------------ALPHABET COUNT TABLES---------------------
-  private void createAlphabetCountTable(String name) throws SQLException {
+  private void createAlphabetCountTable() throws SQLException {
     //Execute this command.
     String[] commands = {
-      "DROP TABLE IF EXISTS " + name,
-      "CREATE TABLE " + name + "(name STRING, count INTEGER)"
+      "DROP TABLE IF EXISTS alphabet",
+      "CREATE TABLE alphabet (name STRING, count INTEGER)"
     };
     execute(commands);
+  }
+
+  public void initAlphabet() {
+    //Check to see whether the alphabetCounts table already exists:
+    String[] commands = {
+      "SELECT name FROM sqlite_master"
+    + "WHERE type='table' AND name=alphabet"
+    }
+
+    if (execute(commands)[0] == 0) {
+      //If it doesn't, create it.
+      createAlphabetCountTable();
+    }
   }
 
   public BufferedDatabaseWriter writeAlphabet() {
