@@ -10,14 +10,16 @@ DataSet:
   A [X] new DataSet(String baseFileName)
   
   (alphabet)
+  F [ ] void initAlphabet()
   A [X] BufferedDatabaseWriter writeAlphabetCounts()
   A [X] String[] getBestAlphabet(int n)
-  F [X] void finalizeAlphabet(String[] alphabet) #note: this should just store (alphabet) in some format on the hard drive somewhere. Doesn't matter where or what format; you can just space delimit it.
-
+  F [X] void finalizeAlphabet(String[] alphabet)
+  
   (counts)
+  F [ ] void initCounts()
   A [X] void add(boolean which, double[][] new)
-  A [X] double lookup(int a, int b)
-  A [X] Enumeration<double[]> enumerate()
+  A [X] double lookup(boolean which, int a, int b)
+  F [ ] Enumeration<double[]> enumerateRow(boolean which)
   F [X] double[][] loadAll(boolean which)
 
   (local wiki)

@@ -1,7 +1,19 @@
 import org.sqlite.JDBC;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 
 class DataSet {
   private File db;
@@ -10,16 +22,16 @@ class DataSet {
   private File[] tokens;
 
   public class BufferedDatabaseWriter {
-    private static BUFFER_LIMIT = 800;
+    private static final int BUFFER_LIMIT = 800;
     private File db;
-    private String dpath = db.getAbsolutePath();
-    private HashMap<String, Integer> buffer;
+    private String dbPath = db.getAbsolutePath();
+    private Hashtable<String, Integer> buffer; //We use a hashtable here for easier enumeration.
 
     public BufferedDatabaseWriter(File db) {
       this.db = db;
     }
 
-    public void flush() {
+    public void flush() throws SQLException {
       //Set up a command to select all pertinent rows:
       String command = "SELECT * FROM alphabet WHERE token IN (";
 
@@ -28,9 +40,9 @@ class DataSet {
       }
       
       //Open a connection
-      Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dpath);
+      Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
       //Make a query to that connection for pertinent rows:
-      Statement statment = connection.createStatement;
+      Statement statement = connection.createStatement();
       ResultSet results = statement.executeQuery(command);
       
       //Find which columns contain the counts and the token names:
@@ -40,21 +52,21 @@ class DataSet {
       //Add our counts to the existent counts and empty the hashtable as we move:
       while (results.next()) {
         String name = results.getString(nameColumn);
-        results.updateInt(countColumnm,
+        results.updateInt(countColumn,
                           results.getInt(countColumn) + buffer.get(name));
         buffer.remove(name);
       }
 
       //Any values that were not emptied (are not already in the table), we should add:
       for (Enumeration<String> keys = buffer.keys(); keys.hasMoreElements();) {
-        key = keys.nextElement();
-        statment.executeUpdate("INSERT INTO alpahbet VALUES (" + key + "," + buffer.get(key));
+        String key = keys.nextElement();
+        statement.executeUpdate("INSERT INTO alpahbet VALUES (" + key + "," + buffer.get(key));
         buffer.remove(key);
       }
     }
 
-    public add(String key, int value) {
-      buffer.put(key, (buffer.contains(key) ? buffer.get(key) : 0) + value);
+    public void add(String key, int value) throws SQLException {
+      buffer.put(key, (buffer.containsKey(key) ? buffer.get(key) : 0) + value);
       if (buffer.size() > BUFFER_LIMIT) flush();
     }
   }
@@ -63,31 +75,42 @@ class DataSet {
     private ResultSet r;
     private int c;
 
-    public countEnumeration(ResultSet r) {
+    public countEnumeration(ResultSet r) throws SQLException {
       this.r = r;
-      this.c = r.getMetaData().columnCount();
+      this.c = r.getMetaData().getColumnCount();
     }
 
     public double[] nextElement() {
-      r.next();
-      double[] r = new double[c - 1];
-      for (int i = 2; i <= c; i += 1) {
-        r[i - 2] = r.getDouble(i);
+      double[] rtn;
+      try {
+		r.next();
+	    rtn = new double[c - 1];
+	    for (int i = 2; i <= c; i += 1) {
+	      rtn[i - 2] = r.getDouble(i);
+	    }
       }
-      return r;
+      catch (SQLException e) {
+        rtn = new double[0];
+      }
+      return rtn;
     }
 
     public boolean hasMoreElements() {
-      boolean rtn = r.next();
-      r.previous();
-      return rtn;
+      try {
+        boolean rtn = r.next();
+        r.previous();
+        return rtn;
+      }
+      catch (SQLException e) {
+        return false;
+      }
     }
   }
 
   public DataSet (String baseFilePath) {
     //Initialize all the files we link to.
     db = new File(baseFilePath + "_db");
-    dpath = db.getAbsolutePath();
+    dbPath = db.getAbsolutePath();
     wikis[0] = new File(baseFilePath + "_w_g");
     wikis[1] = new File(baseFilePath + "_w_b");
     tokens[0] = new File(baseFilePath + "_t_g");
@@ -98,14 +121,14 @@ class DataSet {
     //General method for executing non-SELECT sql statements.
 
     //Open a connection to our database.
-    Connection connection = DriverManager.getConnection("jdbc:sqlite:"+dpath);
+    Connection connection = DriverManager.getConnection("jdbc:sqlite:"+dbPath);
 
     //Get ready to make a statement.
     Statement statement = connection.createStatement();
     
     //Execute the commands.
     for (int i = 0; i < sql.length; i += 1) {
-      statement.executeUpdate(sql);
+      statement.executeUpdate(sql[i]);
     }
     
     //Close the connection.
@@ -125,14 +148,14 @@ class DataSet {
     for (int i = 0; i < alphabetSize; i += 1) {
       //Add the necessary columns to our table.
       commands[1] += "\"" + i + "\" DOUBLE"
-                  + (i == cells[0].length - 1 ? ")" : ",");
+                  + (i == alphabetSize - 1 ? ")" : ",");
     }
 
     //Execute the commands.
     execute(commands);
   }
 
-  private void insertCount(String table, int index, double[] value) {
+  private void insertCount(String table, int index, double[] value) throws SQLException {
     //The command that we need to insert a row:
     String[] commands = {"INSERT INTO " + table
                          + " VALUES (" + index + ", "};
@@ -146,7 +169,7 @@ class DataSet {
     execute(commands);
   }
 
-  private void updateCount(String table, int index, double[] value) {
+  private void updateCount(String table, int index, double[] value) throws SQLException {
     /*
       Probably won't actually use this. If possible, use the addCount() method.
     */
@@ -167,7 +190,7 @@ class DataSet {
     execute(commands);
   }
 
-  private double[][] selectCounts(String table, int[] indices) {
+  private double[][] selectCounts(String table, int[] indices) throws SQLException {
     String command = "SELECT * FROM " + table
                     + " WHERE name IN (";
 
@@ -177,7 +200,7 @@ class DataSet {
     }
     
     //Open our connection.
-    Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dpath);
+    Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
 
     //Create our statement.
     Statement statement = connection.createStatement();
@@ -188,7 +211,7 @@ class DataSet {
     //Scroll to the first result.
 
     //See how many columns there are:
-    double[][] r = new double[indices][result.getMetaData().columnCount() - 1];
+    double[][] r = new double[indices.length][result.getMetaData().getColumnCount() - 1];
     
     //Scroll through our results and put them into a big array of doubles.
     for (int i = 1; i <= indices.length; i += 1) {
@@ -203,14 +226,14 @@ class DataSet {
     return r;
   }
 
-  public double[][] loadAll(boolean which) {
+  public double[][] loadAll(boolean which) throws SQLException {
 
     //Open a connection and make a statement from it.
-    Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dpath);
+    Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
     Statement statement = connection.createStatement();
     
     //Get the number of rows in our databse.
-    int rows = statment.executeUpdate("SELECT * FROM " + (which ? "good" : bad));
+    int rows = statement.executeUpdate("SELECT * FROM " + (which ? "good" : "bad"));
     
     //Actually select the rows into a ResultSet
     ResultSet result = statement.executeQuery("SELECT * FROM " + (which ? "good" : "bad"));
@@ -229,23 +252,23 @@ class DataSet {
     return r;
   }
 
-  public double lookup (boolean which, int a, int b) {
-    Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dpath);
-    Statement statement = connection.createStatment();
-    ResultSet results = statement.executeQuery("SELECT " + b + " FROM " + (which ? "good" : "bad") + " WHERE name=" + a;
+  public double lookup (boolean which, int a, int b) throws SQLException {
+    Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+    Statement statement = connection.createStatement();
+    ResultSet results = statement.executeQuery("SELECT " + b + " FROM " + (which ? "good" : "bad") + " WHERE name=" + a);
     results.next();
-    double r = results.getDouble(results.findColumn(b));
+    double r = results.getDouble(results.findColumn(Integer.toString(b)));
     connection.close();
     return r;
   }
-}
-  public void add(boolean which, double[][] add) {
+  
+  public void add(boolean which, double[][] add) throws SQLException {
     //Open a connection and make a statement from it.
-    Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dpath);
+    Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
     Statement statement = connection.createStatement();
     
-    //Get the number of rows in our databse.
-    int rows = statment.executeUpdate("SELECT * FROM " + (which ? "good" : bad));
+    //Get the number of rows in our database.
+    int rows = statement.executeUpdate("SELECT * FROM " + (which ? "good" : "bad"));
     
     //Actually select the rows into a ResultSet
     ResultSet result = statement.executeQuery("SELECT * FROM " + (which ? "good" : "bad"));
@@ -261,10 +284,11 @@ class DataSet {
   }
 
   public Enumeration<double[]> enumerate(boolean which) {
-   
+    //TODO do something in here
+    return null;
   }
   //---------------------ALPHABET COUNT TABLES---------------------
-  private void createAlphabetCountTable(String name) {
+  private void createAlphabetCountTable(String name) throws SQLException {
     //Execute this command.
     String[] commands = {
       "DROP TABLE IF EXISTS " + name,
@@ -278,12 +302,12 @@ class DataSet {
     return new BufferedDatabaseWriter(db);
   }
 
-  public String[] getBestAlphabet(int alphabetSize) {
+  public String[] getBestAlphabet(int alphabetSize) throws SQLException {
     //Get the best (alphabetSize) results (ordered by token count) from our database.
     String[] r = new String[alphabetSize];
 
-    Connection connection = DriverHandler.getConnection("jdbc:sqlite:"+dpath);
-    Statement statement = connection.createStatment();
+    Connection connection = DriverManager.getConnection("jdbc:sqlite:"+dbPath);
+    Statement statement = connection.createStatement();
     ResultSet results = statement.executeQuery(
       "SELECT * FROM alphabet ORDER BY count ASC"
     );
@@ -347,10 +371,10 @@ class DataSet {
   }
 
   public Enumeration<String> readWiki(boolean which) {
-    return new WordReader((which ? goodWiki : badWiki));
+    return new WordReader((which ? wikis[0] : wikis[1]));
   }
   
   public Enumeration<Integer> readTokens(boolean which) {
-    return new TokenReader((which ? goodTokens : badTokens));
+    return new TokenReader((which ? tokens[0] : tokens[1]));
   }
 }
