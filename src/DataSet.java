@@ -1,5 +1,3 @@
-import org.sqlite.JDBC;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Hashtable;
 
 class DataSet {
@@ -71,7 +68,7 @@ class DataSet {
     }
   }
 
-  private class countEnumeration implements Enumeration<double[]> {
+  public class countEnumeration implements Enumeration<double[]> {
     private ResultSet r;
     private int c;
 
