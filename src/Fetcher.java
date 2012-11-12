@@ -211,8 +211,8 @@ public class Fetcher {
     Document xml = makeWikipediaRequest("list=categorymembers",
                             "cmtitle=Category:+Good+articles",
                             "cmlimit=" + n,
-                            "cmsort=timestamp" + 
-                            (timestamp == "" ? "" : ("cmstart="+timestamp)));
+                            "cmsort=timestamp" +  
+                            (timestamp == "" ? "" : ("&cmstart="+timestamp)));
     
     timestamp = getAttributeOf(xml.getElementsByTagName("query-continue").item(0).getFirstChild(), "cmstart");
 

@@ -8,11 +8,11 @@ class Scorer {
   private double logGoodNum;
   private double logBadNum;
 
-  public Scorer(DataSet data) {
-    this.good = data.loadAll(true);
-    this.bad = data.loadAll(false);
-    this.logGoodNum = data.getNum(true);
-    this.logBadNum = data.getNum(false);
+  public Scorer(DataSet data) throws Exception {
+      this.good = data.loadAll(true);
+      this.bad = data.loadAll(false);
+      this.logGoodNum = data.getNum(true);
+      this.logBadNum = data.getNum(false);
   }
 
   public double score(int[] text) {

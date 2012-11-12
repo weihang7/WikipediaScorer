@@ -4,6 +4,7 @@
 
 import java.io.Writer;
 import java.util.Enumeration;
+import java.sql.SQLException;
 
 import info.bliki.wiki.filter.*;
 import info.bliki.wiki.model.*;
@@ -72,9 +73,8 @@ public class Tokenizer {
     return ret;
   }
 
-  public void countForAlphabet(DataSet writer, Enumeration<String> document){
-    //TODO Anthony, are you sure you want a DataSet?
-    for (; document.hasMoreElements();) {
+  public static void countForAlphabet(DataSet.BufferedDatabaseWriter writer, Enumeration<String> document) throws SQLException {
+    while(document.hasMoreElements()) {
       writer.add(document.nextElement(), 1);
     }
     writer.flush();

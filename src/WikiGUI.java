@@ -16,12 +16,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
-class WikiGUI extends JFrame {
+class WikiGUI {
   
   /**
    * 
    */
-  private static final long serialVersionUID = -17538959359997845L;
   // Field declarations.
   private JFrame window;
   
@@ -120,14 +119,20 @@ class WikiGUI extends JFrame {
   public class ButtonListener implements ActionListener{
     public void actionPerformed(ActionEvent e){
       // Scores the input.
-      Scorer theScorer = new Scorer(data);
-      output.setText(Double.toString(Double.valueOf(theScorer.score(Tokenizer.stripTokens(Tokenizer.tokenize(input.getText()),DataSet.loadAlphabet())))));
+      try {
+        Scorer theScorer = new Scorer(data);
+        output.setText(Double.toString(Double.valueOf(theScorer.score(Tokenizer.stripTokens(Tokenizer.tokenize(input.getText()),DataSet.loadAlphabet())))));
+      }
+      catch (Exception error) {
+        output.setText("Error loading probability files.");
+      }
     }
   }
   
   public static void main(String[] args) {
     // Start the program.
     WikiGUI app = new WikiGUI("default");
-    app.createGUI();
+    JFrame window = app.createGUI();
+    window.setVisible(true);
   }
 }

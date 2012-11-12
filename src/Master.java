@@ -1,19 +1,26 @@
-import java.io.StringWriter;
 import java.util.Enumeration;
+import java.io.BufferedWriter;
 
 /*
 * @author Anthony Bau
 */
 class Master {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     final int DATA_SIZE = Integer.parseInt(args[0]);
     final int ALPHABET_SIZE = Integer.parseInt(args[1]);
     final String BASE_FILE_NAME = args[2];
 
-    int goodLength;
-    int badLength;
+    int goodLength = 0;
+    int badLength = 0;
     
     DataSet data = new DataSet(BASE_FILE_NAME);
+    data.initAlphabet();
+    data.initCounts(ALPHABET_SIZE);
+    
+    //Hard-coded probability for good article.
+    //TODO: Fetch dynamically.
+    data.addNum(true, 4094871);
+    data.addNum(false, 16083);
     
     //FETCHING AND INITIAL TOKENIZATION:
     
@@ -25,7 +32,6 @@ class Master {
     Fetcher fetcher = new Fetcher();
 
     for (int i = 0; i + 50 <= DATA_SIZE; i += 50) {
-
       //Fetch 50 random (probably bad) pages:
       String[] random = fetcher.getRandom(50);
       for (int x = 0; x < 50; x += 1) {
@@ -34,7 +40,7 @@ class Master {
         goodLength += tokenized.length;
         for (int t = 0; t < tokenized.length; t += 1) {
           //Write each token to memory.
-          badLocalWiki.write(" " + t);
+          badLocalWiki.write(" " + tokenized[t]);
         }
       }
 
@@ -51,12 +57,19 @@ class Master {
       }
     }
 
+      System.out.println("Counting alphabet.");
 
       //ALPHABET COUNTING:
-      BufferedDatabaseWriter alphabetWriter = data.writeAlphabetCounts();
+      DataSet.BufferedDatabaseWriter alphabetWriter = data.writeAlphabetCounts();
+      
+      System.out.println("(good)");
       Tokenizer.countForAlphabet(alphabetWriter, data.readWiki(true));
-      Tokenizer.countForAlpahbet(alphabetWriter, data.readWiki(false));
-	
+      
+      System.out.println("(bad)");
+      Tokenizer.countForAlphabet(alphabetWriter, data.readWiki(false));
+
+      
+      System.out.println("Measuring best alphabet");
       //Get best alphabet:
       String[] alphabet = data.getBestAlphabet(ALPHABET_SIZE);
 	  

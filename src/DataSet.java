@@ -1,3 +1,4 @@
+import java.io.InputStreamReader;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -24,31 +25,49 @@ class DataSet {
   private File[] wikis;
   private File[] tokens;
   private File alphabetFile;
+  private int[] num;
 
-  public class BufferedDatabaseWriter {
+  public static class BufferedDatabaseWriter {
     private static final int BUFFER_LIMIT = 800;
     private File db;
-    private String dbPath = db.getAbsolutePath();
+    private String dbPath;
+    private Connection connection=null;
+    
     private Hashtable<String, Integer> buffer; //We use a hashtable here for easier enumeration.
 
     public BufferedDatabaseWriter(File db) {
       this.db = db;
+      this.dbPath = db.getAbsolutePath();
+      this.buffer = new Hashtable<String, Integer>();
     }
 
     public void flush() throws SQLException {
+    
+      //Load up JDBC.
+      try {
+        Class.forName("org.sqlite.JDBC");
+      }
+      catch (ClassNotFoundException e) {
+        e.printStackTrace();
+        return;
+      }
+
       //Set up a command to select all pertinent rows:
       String command = "SELECT * FROM alphabet WHERE token IN (";
 
       for (Enumeration<String> keys = buffer.keys(); keys.hasMoreElements();) {
-        command += keys.nextElement() + (keys.hasMoreElements() ? ", " : ")");
+        command += "'" + keys.nextElement() + (keys.hasMoreElements() ? "', " : "')");
       }
       
       //Open a connection
-      Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+      connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+      
       //Make a query to that connection for pertinent rows:
       Statement statement = connection.createStatement();
       ResultSet results = statement.executeQuery(command);
-      
+      System.out.println(connection.isClosed());
+      System.out.println(statement.isClosed());
+      System.out.println(results.isClosed());
       //Find which columns contain the counts and the token names:
       int countColumn = results.findColumn("count");
       int nameColumn = results.findColumn("token");
@@ -87,11 +106,12 @@ class DataSet {
     public double[] nextElement() {
       double[] rtn;
       try {
-		r.next();
-	    rtn = new double[c - 1];
-	    for (int i = 2; i <= c; i += 1) {
-	      rtn[i - 2] = r.getDouble(i);
-	    }
+	r.next();
+	rtn = new double[c - 1];
+	for (int i = 2; i <= c; i += 1) {
+          System.out.print(i);
+          rtn[i - 2] = r.getDouble(i);
+	}
       }
       catch (SQLException e) {
         rtn = new double[0];
@@ -115,14 +135,26 @@ class DataSet {
     //Initialize all the files we link to.
     db = new File(baseFilePath + ".db");
     dbPath = db.getAbsolutePath();
+    wikis = new File[2];
     wikis[0] = new File(baseFilePath + "_w_g");
     wikis[1] = new File(baseFilePath + "_w_b");
+    tokens = new File[2];
     tokens[0] = new File(baseFilePath + "_t_g");
     tokens[1] = new File(baseFilePath + "_t_b");
+    num = new int[2];
     alphabetFile = new File(baseFilePath + "_alphabet");
   }
 
   private int[] execute(String[] sql) throws SQLException {
+    //Load up JDBC.
+    try {
+      Class.forName("org.sqlite.JDBC");
+    }
+    catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      return new int[0];
+    }
+
     //General method for executing non-SELECT sql statements.
 
     int[] rtn = new int[sql.length];
@@ -168,12 +200,12 @@ class DataSet {
     //Check to see whether the tables exist already:
     String[] commands = {
       "SELECT name FROM sqlite_master"
-    + "WHERE type='table' AND name IN (bad, good)"
+    + " WHERE type='table' AND name IN ('bad', 'good')"
     };
     
     if (execute(commands)[0] == 0) {
       try {
-        //If they do, create them.
+        //If they don't, create them.
         createCountTable("bad", alphabetSize);
         createCountTable("good", alphabetSize);
       }
@@ -184,6 +216,7 @@ class DataSet {
   }
 
   private void insertCount(String table, int index, double[] value) throws SQLException {
+
     //The command that we need to insert a row:
     String[] commands = {"INSERT INTO " + table
                          + " VALUES (" + index + ", "};
@@ -219,6 +252,15 @@ class DataSet {
   }
 
   private double[][] selectCounts(String table, int[] indices) throws SQLException {
+    //Load up JDBC.
+    try {
+      Class.forName("org.sqlite.JDBC");
+    }
+    catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      return null;
+    }
+    
     String command = "SELECT * FROM " + table
                     + " WHERE name IN (";
 
@@ -255,6 +297,14 @@ class DataSet {
   }
 
   public double[][] loadAll(boolean which) throws SQLException {
+    //Load up JDBC.
+    try {
+      Class.forName("org.sqlite.JDBC");
+    }
+    catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      return null;
+    }
 
     //Open a connection and make a statement from it.
     Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
@@ -281,6 +331,15 @@ class DataSet {
   }
 
   public double lookup (boolean which, int a, int b) throws SQLException {
+    //Load up JDBC.
+    try {
+      Class.forName("org.sqlite.JDBC");
+    }
+    catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      return -1.0;
+    }
+    
     Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
     Statement statement = connection.createStatement();
     ResultSet results = statement.executeQuery("SELECT " + b + " FROM " + (which ? "good" : "bad") + " WHERE name=" + a);
@@ -291,6 +350,15 @@ class DataSet {
   }
   
   public void add(boolean which, double[][] add) throws SQLException {
+    //Load up JDBC.
+    try {
+      Class.forName("org.sqlite.JDBC");
+    }
+    catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      return;
+    }
+
     //Open a connection and make a statement from it.
     Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
     Statement statement = connection.createStatement();
@@ -320,7 +388,7 @@ class DataSet {
     //Execute this command.
     String[] commands = {
       "DROP TABLE IF EXISTS alphabet",
-      "CREATE TABLE alphabet (name STRING, count INTEGER)"
+      "CREATE TABLE alphabet (token STRING, count INTEGER)"
     };
     execute(commands);
   }
@@ -329,7 +397,7 @@ class DataSet {
     //Check to see whether the alphabetCounts table already exists:
     String[] commands = {
       "SELECT name FROM sqlite_master"
-    + "WHERE type='table' AND name=alphabet"
+    + " WHERE type='table' AND name='alphabet'"
     };
 
     if (execute(commands)[0] == 0) {
@@ -338,13 +406,23 @@ class DataSet {
     }
   }
 
-  public BufferedDatabaseWriter writeAlphabet() {
+  public BufferedDatabaseWriter writeAlphabetCounts() {
     //Instatiate a new BufferedDatabaseWriter for our alphabet.
     return new BufferedDatabaseWriter(db);
   }
 
   public String[] getBestAlphabet(int alphabetSize) throws SQLException {
+     //Load up JDBC.
+    try {
+      Class.forName("org.sqlite.JDBC");
+    }
+    catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      return null;
+    }
+    
     //Get the best (alphabetSize) results (ordered by token count) from our database.
+    
     String[] r = new String[alphabetSize];
 
     Connection connection = DriverManager.getConnection("jdbc:sqlite:"+dbPath);
@@ -368,33 +446,38 @@ class DataSet {
    * This should just be copied over from the old DataSet. It was fine.
   */
   private class WordReader implements Enumeration<String> {
-    StringReader r;
+    InputStreamReader r;
     public WordReader(File f) {
       try {
-    this.r = new StringReader(new BufferedInputStream(new FileInputStream(f)).toString());
-  } catch (FileNotFoundException e) {
-    e.printStackTrace();
-  }
+        this.r = new InputStreamReader(new BufferedInputStream(new FileInputStream(f)), "UTF-8");
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
     }
+
     public String nextElement() {
       String s = "";
       char c;
       try {
-    while ((c = (char) r.read()) != ' ') {
-        s += c;
+        while ((c = (char) r.read()) != ' ') {
+          s += c;
+        }
       }
-  } catch (IOException e) {
-    e.printStackTrace();
-  }
+      catch (IOException e) {
+        e.printStackTrace();
+      }
       return s;
     }
+
     public boolean hasMoreElements() {
-    try {
-      return r.ready();
-    } catch (IOException e) {
-      e.printStackTrace();
-      return false;
-    }
+      try {
+        return r.ready();
+      }
+      catch (IOException e) {
+        e.printStackTrace();
+        return false;
+      }
     }
   }
 
@@ -421,9 +504,14 @@ class DataSet {
   
 
   public void finalizeAlphabet(String[] alphabet){
-    BufferedWriter writer = new BufferedWriter(new FileWriter(alphabetFile));
-    for (int i = 0; i < alphabet.length; i += 1) {
-      writer.write(alphabet[i] + (i == alphabet.length ? "" : " "));
+    try {
+      BufferedWriter writer = new BufferedWriter(new FileWriter(alphabetFile));
+      for (int i = 0; i < alphabet.length; i += 1) {
+       writer.write(alphabet[i] + (i == alphabet.length ? "" : " "));
+      }
+    }
+    catch (IOException e) {
+      e.printStackTrace();
     }
   }
   
@@ -431,11 +519,11 @@ class DataSet {
     return readFromText(new File("alphabet")).split(" ");
   }
   
-  public BufferedWriter writeWiki(boolean which) {
+  public BufferedWriter writeWiki(boolean which) throws IOException {
     return new BufferedWriter(new FileWriter(wikis[which ? 0 : 1], true));
   }
 
-  public BufferedWriter writeTokens(boolean which) {
+  public BufferedWriter writeTokens(boolean which) throws IOException {
     return new BufferedWriter(new FileWriter(tokens[which ? 0 : 1], true));
   }
   
@@ -472,5 +560,13 @@ class DataSet {
        ex.printStackTrace();
      }
      return text;
+  }
+
+  public int getNum(boolean which) {
+    return num[which ? 0 : 1];
+  }
+
+  public void addNum(boolean which, int n) {
+    num[which ? 0 : 1] += n;
   }
 }
