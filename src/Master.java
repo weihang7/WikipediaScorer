@@ -18,8 +18,8 @@ class Master {
     //FETCHING AND INITIAL TOKENIZATION:
     
     //Get string writers for the files we'll save these to:
-    StringWriter goodLocalWiki = data.writeWiki(true);
-    StringWriter badLocalWiki = data.writeWiki(false);
+    BufferedWriter goodLocalWiki = data.writeWiki(true);
+    BufferedWriter badLocalWiki = data.writeWiki(false);
     
     //Make a new Fetcher to fetch our data:
     Fetcher fetcher = new Fetcher();

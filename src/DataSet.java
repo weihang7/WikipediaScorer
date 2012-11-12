@@ -18,16 +18,12 @@ import java.util.Hashtable;
 
 import javax.swing.JOptionPane;
 
-import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.hwpf.extractor.WordExtractor;
-import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-
 class DataSet {
   private File db;
   private String dbPath;
   private File[] wikis;
   private File[] tokens;
+  private File alphabetFile;
 
   public class BufferedDatabaseWriter {
     private static final int BUFFER_LIMIT = 800;
@@ -123,6 +119,7 @@ class DataSet {
     wikis[1] = new File(baseFilePath + "_w_b");
     tokens[0] = new File(baseFilePath + "_t_g");
     tokens[1] = new File(baseFilePath + "_t_b");
+    alphabetFile = new File(baseFilePath + "_alphabet");
   }
 
   private int[] execute(String[] sql) throws SQLException {
@@ -167,12 +164,12 @@ class DataSet {
     execute(commands);
   }
   
-  public void initCounts(int alphabetSize) {
+  public void initCounts(int alphabetSize) throws SQLException {
     //Check to see whether the tables exist already:
     String[] commands = {
       "SELECT name FROM sqlite_master"
     + "WHERE type='table' AND name IN (bad, good)"
-    }
+    };
     
     if (execute(commands)[0] == 0) {
       try {
@@ -328,12 +325,12 @@ class DataSet {
     execute(commands);
   }
 
-  public void initAlphabet() {
+  public void initAlphabet() throws SQLException {
     //Check to see whether the alphabetCounts table already exists:
     String[] commands = {
       "SELECT name FROM sqlite_master"
     + "WHERE type='table' AND name=alphabet"
-    }
+    };
 
     if (execute(commands)[0] == 0) {
       //If it doesn't, create it.
@@ -424,8 +421,9 @@ class DataSet {
   
 
   public void finalizeAlphabet(String[] alphabet){
-    for(int i=0;i<alphabet.length;i++){
-      append("alphabet",alphabet[i]+" ");
+    BufferedWriter writer = new BufferedWriter(new FileWriter(alphabetFile));
+    for (int i = 0; i < alphabet.length; i += 1) {
+      writer.write(alphabet[i] + (i == alphabet.length ? "" : " "));
     }
   }
   
@@ -433,19 +431,12 @@ class DataSet {
     return readFromText(new File("alphabet")).split(" ");
   }
   
-  public static void append(String file, String value){
-    try{
-      // Create file 
-      FileWriter fstream = new FileWriter(file,true);
-      BufferedWriter out = new BufferedWriter(fstream);
-      out.write(value);
-      //Close the output stream
-      out.close();
-    }
-    catch (Exception e){
-      //Catch exception if any
-      System.err.println("Error: " + e.getMessage());
-    }
+  public BufferedWriter writeWiki(boolean which) {
+    return new BufferedWriter(new FileWriter(wikis[which ? 0 : 1], true));
+  }
+
+  public BufferedWriter writeTokens(boolean which) {
+    return new BufferedWriter(new FileWriter(tokens[which ? 0 : 1], true));
   }
   
   public static void overwrite(String stringToWrite, String path){
@@ -464,50 +455,6 @@ class DataSet {
     // Create file
     FileInputStream is = new FileInputStream(new File(file));
     return new BufferedInputStream(is);
-  }
-  
-  public static String readFromDoc(File docfile){
-    
-    //Establishing the things to receive data from the FileInputStream
-    String ret = "";
-    
-    try {
-      //Create a FileInputStream that links the HWPFDocument and a WordExtractor
-      FileInputStream fis=new FileInputStream(docfile);
-      HWPFDocument document=new HWPFDocument(fis);
-      WordExtractor extractor = new WordExtractor(document);
-      
-      //Extract the text
-      ret=extractor.getText();
-    }
-    catch(Exception exep){
-      // Catch exceptions
-      JOptionPane.showMessageDialog(null,"docLoadingException");
-    }
-    
-    return ret;
-  }
-  
-  public static String readFromDocx(File docxfile){
-
-    //Establishing the things to receive data from the FileInputStream
-    String ret = "";
-    
-    try {
-      //Create a FileInputStream that links the HWPFDocument and a WordExtractor
-      FileInputStream fis=new FileInputStream(docxfile);
-      XWPFDocument document=new XWPFDocument(fis);
-      XWPFWordExtractor extractor = new XWPFWordExtractor(document);
-      
-      //Extract the text
-      ret=extractor.getText();
-    }
-    catch(Exception exep){
-      // Catch exceptions
-      JOptionPane.showMessageDialog(null,"docxLoadingException");
-    }
-    
-    return ret;
   }
   
   //Reading from a text file
