@@ -1,14 +1,12 @@
-import java.io.InputStreamReader;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -16,8 +14,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
-import javax.swing.JOptionPane;
 
 class DataSet {
   private File db;
@@ -29,15 +25,15 @@ class DataSet {
 
   public static class BufferedDatabaseWriter {
     private static final int BUFFER_LIMIT = 800;
-    private File db;
+    private DataSet db;
     private String dbPath;
     private Connection connection=null;
     
     private Hashtable<String, Integer> buffer; //We use a hashtable here for easier enumeration.
 
     public BufferedDatabaseWriter(File db) {
-      this.db = db;
       this.dbPath = db.getAbsolutePath();
+      this.db=new DataSet(dbPath.substring(0, dbPath.length()-3));
       this.buffer = new Hashtable<String, Integer>();
     }
 
@@ -52,45 +48,59 @@ class DataSet {
         return;
       }
 
-      //Set up a command to select all pertinent rows:
+      //Set up a command to select all pertinent columns:
       String command = "SELECT * FROM alphabet WHERE token IN (";
 
       for (Enumeration<String> keys = buffer.keys(); keys.hasMoreElements();) {
         command += "'" + keys.nextElement() + (keys.hasMoreElements() ? "', " : "')");
       }
-      
+      System.out.println(command);
       //Open a connection
       connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
       
       //Make a query to that connection for pertinent rows:
       Statement statement = connection.createStatement();
-      ResultSet results = statement.executeQuery(command);
-      System.out.println(connection.isClosed());
-      System.out.println(statement.isClosed());
-      System.out.println(results.isClosed());
-      //Find which columns contain the counts and the token names:
-      int countColumn = results.findColumn("count");
-      int nameColumn = results.findColumn("token");
-
-      //Add our counts to the existent counts and empty the hashtable as we move:
-      while (results.next()) {
-        String name = results.getString(nameColumn);
-        results.updateInt(countColumn,
-                          results.getInt(countColumn) + buffer.get(name));
-        buffer.remove(name);
+      boolean hasNoElements = false;
+      ResultSet testResults = null;
+      try{
+        testResults = statement.executeQuery(command);
       }
-
+      catch(Exception e){
+        hasNoElements = true;
+      }
+      finally{
+        testResults.close();
+      }
+      if (!hasNoElements){
+        ResultSet results = statement.executeQuery(command);
+        //Add our counts to the existent counts and empty the hashtable as we move:
+        while (results.next()) {
+          String name = results.getString("token");
+          String[] exec = new String[]{"UPDATE alphabet SET count = "+(results.getInt("count")+buffer.get(name))+" WHERE token = '"+name+"'"};
+          System.out.println(exec[0]);
+          statement.executeUpdate(exec[0]);
+          buffer.remove(name);
+        }
+        
+      }
       //Any values that were not emptied (are not already in the table), we should add:
       for (Enumeration<String> keys = buffer.keys(); keys.hasMoreElements();) {
         String key = keys.nextElement();
-        statement.executeUpdate("INSERT INTO alpahbet VALUES (" + key + "," + buffer.get(key));
+        statement.executeUpdate("INSERT INTO alphabet VALUES ('" + key + "'," + buffer.get(key) + ")");
         buffer.remove(key);
       }
+      buffer.clear();
+      System.out.println(buffer.size());
+      statement.close();
+      connection.close();
     }
 
     public void add(String key, int value) throws SQLException {
       buffer.put(key, (buffer.containsKey(key) ? buffer.get(key) : 0) + value);
-      if (buffer.size() > BUFFER_LIMIT) flush();
+      if (buffer.size() > BUFFER_LIMIT){
+        System.out.println("flushing");
+        flush();
+      }
     }
   }
 
@@ -183,7 +193,7 @@ class DataSet {
     //The commands we need to make a table:
     String[] commands = {
       "DROP TABLE IF EXISTS " + name,
-      "CREATE TABLE " + name + "(name DOUBLE, "
+      "CREATE TABLE " + name + " (name DOUBLE, "
     };
     
     for (int i = 0; i < alphabetSize; i += 1) {
@@ -363,8 +373,7 @@ class DataSet {
     Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
     Statement statement = connection.createStatement();
     
-    //Get the number of rows in our database.
-    int rows = statement.executeUpdate("SELECT * FROM " + (which ? "good" : "bad"));
+    statement.executeUpdate("SELECT * FROM " + (which ? "good" : "bad"));
     
     //Actually select the rows into a ResultSet
     ResultSet result = statement.executeQuery("SELECT * FROM " + (which ? "good" : "bad"));
